@@ -1,0 +1,67 @@
+
+<ion-content>
+  <div class="body">
+    <ion-row>
+      <ion-col col-6><img src="../../assets/img/header-logo.png" class="logo"></ion-col>
+      <ion-col col-6><button class="signout-btn" (click)="logout()">Signout</button></ion-col>
+    </ion-row>
+    <ion-row class="user">
+      <ion-col col-12>
+        <img class="img" src="https://www.fakepersongenerator.com/Face/male/male1085206437439.jpg"><br>
+        <span class="label">Welcome Back</span><br>
+        <span class="name" *ngIf="user != undefined">{{ profile["first_name"]  }}</span><br>
+      </ion-col>
+    </ion-row>
+
+    <span class="service-label" (click)="tapBack()">
+      <ion-icon slot="start" name="arrow-back"></ion-icon> Job Information
+    </span>
+  </div>  
+  <ion-list lines="none">
+    <ion-row></ion-row>
+    <div *ngIf="heroExist">
+      <ion-row padding class="form-header"><ion-col class="text-center">Hero Provider</ion-col></ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Name</span>
+        <ion-input class="field" value="{{hero.profile.first_name}} {{hero.profile.last_name}}"></ion-input>
+        <ion-label class="field-label"><ion-icon name="person" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Payment</span>
+        <ion-input class="field" value="{{job.amount}}"></ion-input>
+        <ion-label class="field-label"><ion-icon name="cash" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+    </div>
+
+    <div *ngIf="formExist">
+      <ion-row padding class="form-header"><ion-col class="text-center">Job Details</ion-col></ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Job</span>
+        <ion-input class="field" value="{{form.option.name}}"></ion-input>
+        <ion-label class="field-label"><ion-icon name="{{form.option.icon}}" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Status</span>
+        <ion-input class="field" value="{{job.status}}"></ion-input>
+        <ion-label class="field-label"><ion-icon name="analytics" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+    </div>
+
+    <div *ngFor="let a of attributes">
+      <ion-row padding class="form-header"><ion-col class="text-center">{{a.title}}</ion-col></ion-row>
+      <ion-row padding class="field-wrap" *ngFor="let field of a.fields">
+      	<span class="field-text">{{field.label}}</span>
+        <ion-input *ngIf="field.type == 'text'" class="field" [(ngModel)]="field.input" placeholder="{{field.label}}"></ion-input>
+        <ion-datetime *ngIf="field.type == 'date'" [(ngModel)]="field.input" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="{{field.label}}" class="field-date"></ion-datetime>
+        <ion-datetime *ngIf="field.type == 'time'" [(ngModel)]="field.input" display-format="hh:mm a" picker-format="hh:mm a" placeholder="{{field.label}}" class="field-date"></ion-datetime>
+        <ion-textarea *ngIf="field.type == 'textarea'" [(ngModel)]="field.input" placeholder="{{field.label}}" class="field" ></ion-textarea>
+        <ion-select *ngIf="field.type == 'dropdown'" [(ngModel)]="field.input" placeholder="{{field.label}}" class="field" >
+          <ion-select-option *ngFor="let select of field.values" value="{{select}}">{{select}}</ion-select-option>
+        </ion-select>
+
+        <ion-label class="field-label"><ion-icon name="{{field.icon}}" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+    </div>
+    <button *ngIf="enableCancel" class="btn btn-login" (click)="tapCancel()" >CANCEL JOB</button>
+  </ion-list>
+</ion-content>

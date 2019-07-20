@@ -78,20 +78,24 @@
 		margin-left: 10px;
 		border-radius: 0 20px 0 0;
 		background: #F2AA49;
-		padding: 4px 15px 4px 10px;
+		padding: 5px 20px 5px 10px;
 		color: #333;
 		font-size: 9pt;
 	}
 
 	ion-list {
 		padding: 10px;
-		background: linear-gradient(to bottom, rgb(179,44,51) 0%,rgb(239,71,58) 100%);
+		// background: linear-gradient(to bottom, rgb(179,44,51) 0%,rgb(239,71,58) 100%);
+		background: rgb(239,71,58);
+		min-height: 80%;
 	}
 
     .field {
 		background: #C12F2F;
 		color: #F5AB4A;
 		border-radius: 5px 0 0 5px;
+		width: 82%;
+   		margin-top: 0px;
 	}
 	.field-label {
 		background: #F5AB4A;
@@ -109,6 +113,13 @@
 		margin: 8px 0 0 10px; 
 	}
 
+	.field-date {
+		background: #C12F2F;
+		width: 82%;
+		color: $yellow;
+		border-radius: 5px 0 0 5px;
+	}
+
 	.form-header {
 		color: $yellow;
 		font-weight: bold;
@@ -120,7 +131,8 @@
 
 	.form-bar {
 		padding: 0 90px;
-		margin-top: -10px;
+		// margin-bottom: -10px;
+		margin-top: 15px;
 	}
 
 	.btn {

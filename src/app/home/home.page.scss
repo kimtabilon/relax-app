@@ -9,12 +9,9 @@
 
 :host {
 	.body {
-  		// --background: url('https://images.pexels.com/photos/1432942/pexels-photo-1432942.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500') no-repeat 100% 100%;
-	  	// min-height:100%;
 		background:linear-gradient(0deg,rgba(199,44,60,.8),rgba(199,44,60,.9)),url('../../assets/img/bg-img-sm.png');
 		background-size:cover;
 		width: 100%;
-		// --background: url('../../assets/img/bg-img-sm.png') no-repeat 100% 100%;
   	}
   	
 	.logo {
@@ -69,7 +66,7 @@
 		margin-left: 10px;
 		border-radius: 0 20px 0 0;
 		background: #F2AA49;
-		padding: 4px 15px 4px 10px;
+		padding: 5px 20px 5px 10px;
 		color: #333;
 		font-size: 9pt;
 	}
@@ -77,6 +74,7 @@
 	ion-list {
 		padding: 10px;
 		background: linear-gradient(to bottom, rgb(179,44,51) 0%,rgb(239,71,58) 100%);
+		min-height: 80%;
 	}
 
     ion-item {

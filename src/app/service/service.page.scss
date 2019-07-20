@@ -69,7 +69,7 @@
 		margin-left: 10px;
 		border-radius: 0 20px 0 0;
 		background: #F2AA49;
-		padding: 4px 15px 4px 10px;
+		padding: 5px 20px 5px 10px;
 		color: #333;
 		font-size: 9pt;
 	}
@@ -77,6 +77,7 @@
 	ion-list {
 		padding: 10px;
 		background: linear-gradient(to bottom, rgb(179,44,51) 0%,rgb(239,71,58) 100%);
+		min-height: 80%;
 	}
 
     ion-item {
