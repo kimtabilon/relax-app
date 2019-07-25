@@ -74,6 +74,10 @@
 		--background: #DA393C;	
 	}
 
+	ion-refresher {
+		background: #fff;
+	}
+
 	.service-label {
 		margin-left: 10px;
 		border-radius: 0 20px 0 0;
@@ -90,7 +94,7 @@
 		min-height: 80%;
 	}
 
-    .field {
+  .field {
 		background: #C12F2F;
 		color: #F5AB4A;
 		border-radius: 5px 0 0 5px;
@@ -118,6 +122,13 @@
 		width: 82%;
 		color: $yellow;
 		border-radius: 5px 0 0 5px;
+	}
+
+	.field-text {
+		color: $yellow;
+		position: absolute;
+    margin-top: -13px;
+    font-size: 8pt;
 	}
 
 	.form-header {

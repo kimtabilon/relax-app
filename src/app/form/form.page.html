@@ -1,5 +1,13 @@
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing...">
+    </ion-refresher-content>
+  </ion-refresher>
   <div class="body">
     <ion-row>
       <ion-col col-6><img src="../../assets/img/header-logo.png" class="logo"></ion-col>
@@ -7,7 +15,7 @@
     </ion-row>
     <ion-row class="user">
       <ion-col col-12>
-        <img class="img" src="https://www.fakepersongenerator.com/Face/male/male1085206437439.jpg"><br>
+        <img class="img" src="{{photo}}"><br>
         <span class="label">Welcome Back</span><br>
         <span class="name" *ngIf="user != undefined">{{ profile["first_name"]  }}</span><br>
       </ion-col>
@@ -31,6 +39,7 @@
     <div *ngFor="let a of attributes">
       <ion-row padding class="form-header"><ion-col class="text-center">{{a.title}}</ion-col></ion-row>
       <ion-row padding class="field-wrap" *ngFor="let field of a.fields">
+        <span class="field-text">{{field.label}}</span>
         <ion-input *ngIf="field.type == 'text'" class="field" [(ngModel)]="field.input" placeholder="{{field.label}}"></ion-input>
         <ion-datetime *ngIf="field.type == 'date'" [(ngModel)]="field.input" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="{{field.label}}" class="field-date"></ion-datetime>
         <ion-datetime *ngIf="field.type == 'time'" [(ngModel)]="field.input" display-format="hh:mm a" picker-format="hh:mm a" placeholder="{{field.label}}" class="field-date"></ion-datetime>
@@ -43,10 +52,45 @@
       </ion-row>
     </div>
 
+    <div>
+      <ion-row padding class="form-header"><ion-col class="text-center">Customer Information</ion-col></ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Name</span>
+        <ion-input class="field" [(ngModel)]="customer_info.name" placeholder="Name"></ion-input>
+        <ion-label class="field-label"><ion-icon name="person" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Address</span>
+        <!-- <ion-input class="field" [(ngModel)]="customer_info.address" placeholder="Address"></ion-input> -->
+        <ion-textarea [(ngModel)]="customer_info.address" placeholder="Address" class="field" ></ion-textarea>
+        <ion-label class="field-label"><ion-icon name="pin" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Contact</span>
+        <ion-input class="field" [(ngModel)]="customer_info.contact" placeholder="Contact"></ion-input>
+        <ion-label class="field-label"><ion-icon name="call" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+    </div>
+
+    <div>
+      <ion-row padding class="form-header"><ion-col class="text-center">Schedule</ion-col></ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Date of service</span>
+        <ion-datetime [(ngModel)]="schedule_date" min="{{current_date}}" max="{{next_year}}" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="Date" class="field-date"></ion-datetime>
+        <ion-label class="field-label"><ion-icon name="calendar" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+      <ion-row padding class="field-wrap">
+        <span class="field-text">Time *2 hours ahead of current time and date</span>
+        <ion-datetime [(ngModel)]="schedule_time" display-format="hh:mm a" picker-format="hh:mm a" placeholder="Time" class="field-date"></ion-datetime>
+        <ion-label class="field-label"><ion-icon name="clock" class="field-icon"></ion-icon></ion-label>
+      </ion-row>
+    </div>
+
     <div *ngIf="quote_enable == 'No'">
       <ion-row padding class="form-header"><ion-col class="text-center">Pay Per {{payType}}</ion-col></ion-row>
       <ion-row padding class="field-wrap">
-        <ion-input class="field" [(ngModel)]="payper" placeholder="How many {{payType}}?"></ion-input>
+        <span class="field-text">How many {{payType}}/s?</span>
+        <ion-input class="field" [(ngModel)]="payper" placeholder="How many {{payType}}/s?"></ion-input>
         <ion-label class="field-label"><ion-icon name="clock" class="field-icon"></ion-icon></ion-label>
       </ion-row>
     </div>

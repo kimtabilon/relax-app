@@ -8,6 +8,7 @@ import { EnvService } from 'src/app/services/env.service';
 import { Storage } from '@ionic/storage';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { LoadingService } from 'src/app/services/loading.service';
 
 @Component({
   selector: 'app-quotation',
@@ -15,11 +16,23 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./quotation.page.scss'],
 })
 export class QuotationPage implements OnInit {
-  user: User;  
-  profile: Profile;	
+  user:any = {
+    email: '',
+    password: '',
+    status: ''
+  };  
+  profile:any = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    birthday: '',
+    gender: '',
+    photo: ''
+  };  
   title:any;
   job:any;
   quotations:any;
+  photo:any = '';
   
   constructor(
   	private menu: MenuController, 
@@ -30,6 +43,7 @@ export class QuotationPage implements OnInit {
     public router : Router,
     public activatedRoute : ActivatedRoute,
     private http: HttpClient,
+    public loading: LoadingService,
     private env: EnvService
   ) {
   	this.menu.enable(true);	
@@ -38,11 +52,16 @@ export class QuotationPage implements OnInit {
   ngOnInit() {
   }
 
-  ionViewWillEnter() {
-
+  doRefresh(event) {
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
     });
 
     this.activatedRoute.queryParams.subscribe((res)=>{
@@ -50,10 +69,33 @@ export class QuotationPage implements OnInit {
         this.quotations = this.job.quotations;
         this.title = this.job.form.option.name;
     });
+    setTimeout(() => {
+      event.target.complete();
+    }, 2000);
+  }
 
+  ionViewWillEnter() {
+    this.loading.present();
+    this.storage.get('customer').then((val) => {
+      this.user = val.data;
+      this.profile = val.data.profile;
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+    });
+
+    this.activatedRoute.queryParams.subscribe((res)=>{
+        this.job = JSON.parse(res.job);
+        this.quotations = this.job.quotations;
+        this.title = this.job.form.option.name;
+    });
+    this.loading.dismiss();
   }
 
   tapHero(quote) {
+    this.loading.present();
     this.http.post(this.env.HERO_API + 'jobs/modify',
       {job_id: this.job.id, hero_id: quote.hero.id, amount: quote.amount}
     ).subscribe(
@@ -70,18 +112,23 @@ export class QuotationPage implements OnInit {
           });
         }
       );
+    this.loading.dismiss();
   }
 
   tapBack() {
+    this.loading.present();
     this.router.navigate(['/tabs/inbox'],{
       queryParams: {},
     });   
+    this.loading.dismiss();
   }
 
   logout() {
+    this.loading.present();
     this.authService.logout();
     this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login');  
+    this.loading.dismiss();
   }
 
 }

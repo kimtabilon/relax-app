@@ -8,6 +8,8 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { GetService } from 'src/app/services/get.service';
 import { Storage } from '@ionic/storage';
 import { Router, ActivatedRoute } from '@angular/router';
+import { EnvService } from 'src/app/services/env.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-service',
@@ -16,10 +18,24 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class ServicePage implements OnInit {
 
-  user: User;  
-  profile: Profile;	
-  services:any;
-  title:any;
+  user:any = {
+    email: '',
+    password: '',
+    status: ''
+  };  
+  profile:any = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    birthday: '',
+    gender: '',
+    photo: ''
+  };  	
+  category:any = [];
+  category_id:any;
+  services:any = [];
+  title:any = 'Please wait...';
+  photo:any = '';
 
   constructor(
   	private menu: MenuController, 
@@ -30,6 +46,8 @@ export class ServicePage implements OnInit {
     public loading: LoadingService,
     public getService: GetService,
     public router : Router,
+    private env: EnvService,
+    private http: HttpClient,
     public activatedRoute : ActivatedRoute
   ) {
   	this.menu.enable(true);	
@@ -38,18 +56,60 @@ export class ServicePage implements OnInit {
   ngOnInit() {
   }
 
+  doRefresh(event) {
+    this.storage.get('customer').then((val) => {
+      this.user = val.data;
+      this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+    });
+
+    this.activatedRoute.queryParams.subscribe((res)=>{
+      this.category_id = res.category_id;
+
+      this.http.post(this.env.HERO_API + 'categories/byID',{app_key: this.env.APP_ID, id: this.category_id })
+        .subscribe(data => {
+          this.category = data;
+          this.category = this.category.data;
+          this.services = this.category.services;
+          this.title = this.category.name;
+        },error => { console.log(error);  
+      });
+    });
+    setTimeout(() => {
+      event.target.complete();
+    }, 2000);
+  }
+
   ionViewWillEnter() {
     this.loading.present();
     
     this.storage.get('customer').then((val) => {
-      // console.log(val.data);
       this.user = val.data;
       this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
     });
 
     this.activatedRoute.queryParams.subscribe((res)=>{
-        this.services = JSON.parse(res.value).services;
-        this.title = JSON.parse(res.value).name;
+      this.category_id = res.category_id;
+
+      this.http.post(this.env.HERO_API + 'categories/byID',{app_key: this.env.APP_ID, id: this.category_id })
+        .subscribe(data => {
+          this.category = data;
+          this.category = this.category.data;
+          this.services = this.category.services;
+          this.title = this.category.name;
+        },error => { console.log(error);  
+      });
     });
 
     this.loading.dismiss();
@@ -57,16 +117,15 @@ export class ServicePage implements OnInit {
 
   tapService(service) {
     // console.log(this.services);
-    if(service.options.length) {
+    if(service.options.length && service.heroes.length) {
       this.router.navigate(['/tabs/option'],{
         queryParams: {
-            service : JSON.stringify(service),
-            services: JSON.stringify(this.services),
-            backTitle: this.title
+            service_id : service.id,
+            category_id : this.category_id
         },
       });
     } else {
-      this.alertService.presentToast("No Service Available");
+      // this.alertService.presentToast("No Service or Heroes Available");
     }  
   }
 

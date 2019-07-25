@@ -18,9 +18,22 @@ import { EnvService } from 'src/app/services/env.service';
 })
 export class HomePage implements OnInit {
 
-  user: User;  
-  profile: Profile;	
+  user:any = {
+    email: '',
+    password: '',
+    status: ''
+  };  
+  profile:any = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    birthday: '',
+    gender: '',
+    photo: ''
+  };  
+  photo:any = '';	
   categories:any;
+  title:any = 'Please wait...';
 
   constructor(
   	private menu: MenuController, 
@@ -40,6 +53,36 @@ export class HomePage implements OnInit {
   ngOnInit() {
   }
 
+  doRefresh(event) {
+    this.authService.validateApp();
+
+    this.storage.get('customer').then((val) => {
+      // console.log(val.data);
+      this.user = val.data;
+      this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+    });
+
+    // this.getService.all();
+
+    this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
+      .subscribe(data => {
+          this.categories = data;
+          this.categories = this.categories.data;
+          this.title = "Services";
+          // console.log(this.categories);
+      },error => {  });
+    
+    setTimeout(() => {
+      event.target.complete();
+    }, 2000);
+  }
+
   ionViewWillEnter() {
     this.loading.present(); 
 
@@ -49,38 +92,46 @@ export class HomePage implements OnInit {
       // console.log(val.data);
       this.user = val.data;
       this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
     });
 
-    this.getService.all();
-
+    // this.getService.all();
 
     this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
       .subscribe(data => {
           this.categories = data;
           this.categories = this.categories.data;
+          this.title = "Services"; 
           // console.log(this.categories);
       },error => {  });
     this.loading.dismiss();
   }
 
   tapCategory(category) {
-    // console.log(category.services);
+    this.loading.present(); 
     if(category.services.length) {
       this.router.navigate(['/tabs/service'],{
         queryParams: {
-            value : JSON.stringify(category)
+            category_id : category.id
         },
       });
     } else {
       this.alertService.presentToast("No Service Available");
     }
-      
+    this.loading.dismiss();  
   }
 
   logout() {
+    this.loading.present(); 
     this.authService.logout();
     this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login');  
+    this.loading.dismiss();
   }
 
 }

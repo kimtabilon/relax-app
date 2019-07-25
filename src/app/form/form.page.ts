@@ -17,17 +17,46 @@ import { LoadingService } from 'src/app/services/loading.service';
 })
 export class FormPage implements OnInit {
 
-  user: User;  
-  profile: Profile;	
-  form:any;
-  title:any;
+  user:any = {
+    email: '',
+    password: '',
+    status: ''
+  };  
+  profile:any = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    birthday: '',
+    gender: '',
+    photo: ''
+  };  
+
+  customer_info:any = {
+    name: '',
+    address: '',
+    contact: ''
+  }
+
+  schedule_date:any;
+  schedule_time:any;
+
+  form:any = [];
+  title:any = 'Please wait...';
   quote_enable:any;
-  attributes:any;
-  heroes:any;
-  job:any;
+  attributes:any = [];
+  heroes:any = [];
+  job:any = [];
   payType:any;
-  payper:any = '';
-  option:any;
+  payper:any = 1;
+  option:any = [];
+  photo:any = '';
+
+  option_id:any;
+  service_id:any;
+  category_id:any;
+
+  current_date:any = '';
+  next_year:any = '';
 
   constructor(
   	private menu: MenuController, 
@@ -47,22 +76,176 @@ export class FormPage implements OnInit {
   ngOnInit() {
   }
 
-  ionViewWillEnter() {
-    this.loading.present();
+  doRefresh(event) {
+    let curday = function(sp){
+      let today:any = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; //As January is 0.
+      let yyyy:any = today.getFullYear();
+
+      if(dd<10) dd='0'+dd;
+      if(mm<10) mm='0'+mm;
+      return (yyyy+sp+mm+sp+dd);
+    };
+
+    let nextYear = function(sp){
+      let today:any = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; //As January is 0.
+      let yyyy:any = today.getFullYear()+1;
+
+      if(dd<10) dd='0'+dd;
+      if(mm<10) mm='0'+mm;
+      return (yyyy+sp+mm+sp+dd);
+    };
+    console.log(curday('/'));
+    console.log(curday('-'));
+    this.current_date = curday('-');
+    this.next_year = nextYear('-');
 
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+
+      let address:any = this.profile.addresses[0];
+      let contact:any = this.profile.contacts[0];
+      let profile:any = this.profile;
+      let customer_address:any = '';
+      let customer_contact:any = '';
+      let customer_name:any = '';
+
+      if(address.street) { customer_address += address.street + ', '; }
+      if(address.city) { customer_address += address.city + ', '; }
+      if(address.province) { customer_address += address.province + ', '; }
+      if(address.country) { customer_address += address.country + ' '; }
+      if(address.zip) { customer_address += address.zip; }
+
+      if(contact.dial_code) { customer_contact += contact.dial_code + ' '; }
+      if(contact.number) { customer_contact += contact.number; }
+
+      if(profile.first_name) { customer_name += profile.first_name + ' '; }
+      if(profile.middle_name) { customer_name += profile.middle_name + ' '; }
+      if(profile.last_name) { customer_name += profile.last_name; }
+
+      this.customer_info = {
+        name: customer_name,
+        address: customer_address,
+        contact: customer_contact
+      }
+
     });
 
     this.activatedRoute.queryParams.subscribe((res)=>{
-        this.heroes = res.heroes;
-        this.payType = res.payType;
-        this.option = JSON.parse(res.option)
-        this.form = this.option.form;
-        this.title = this.option.name;
-        this.quote_enable = this.option.enable_quote;
-        this.attributes = JSON.parse(this.form.attributes);
+      this.option_id = res.option_id;
+      this.service_id = res.service_id;
+      this.category_id = res.category_id;
+      this.payType = res.payType;
+
+      this.http.post(this.env.HERO_API + 'options/byID',{app_key: this.env.APP_ID, id: this.option_id })
+        .subscribe(data => {
+          this.option = data;
+          this.option = this.option.data;
+          this.form = this.option.form;
+          this.title = this.option.name;
+          this.quote_enable = this.option.enable_quote;
+          this.attributes = JSON.parse(this.form.attributes);
+        },error => { console.log(error);  
+      });
+    });
+    setTimeout(() => {
+      event.target.complete();
+    }, 2000);
+  }
+
+  ionViewWillEnter() {
+    this.loading.present();
+
+    let curday = function(sp){
+      let today:any = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; //As January is 0.
+      let yyyy:any = today.getFullYear();
+
+      if(dd<10) dd='0'+dd;
+      if(mm<10) mm='0'+mm;
+      return (yyyy+sp+mm+sp+dd);
+    };
+
+    let nextYear = function(sp){
+      let today:any = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; //As January is 0.
+      let yyyy:any = today.getFullYear()+1;
+
+      if(dd<10) dd='0'+dd;
+      if(mm<10) mm='0'+mm;
+      return (yyyy+sp+mm+sp+dd);
+    };
+    console.log(curday('/'));
+    console.log(curday('-'));
+    this.current_date = curday('-');
+    this.next_year = nextYear('-');
+
+    this.storage.get('customer').then((val) => {
+      this.user = val.data;
+      this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+
+      let address:any = this.profile.addresses[0];
+      let contact:any = this.profile.contacts[0];
+      let profile:any = this.profile;
+      let customer_address:any = '';
+      let customer_contact:any = '';
+      let customer_name:any = '';
+
+      if(address.street) { customer_address += address.street + ', '; }
+      if(address.city) { customer_address += address.city + ', '; }
+      if(address.province) { customer_address += address.province + ', '; }
+      if(address.country) { customer_address += address.country + ' '; }
+      if(address.zip) { customer_address += address.zip; }
+
+      if(contact.dial_code) { customer_contact += contact.dial_code + ' '; }
+      if(contact.number) { customer_contact += contact.number; }
+
+      if(profile.first_name) { customer_name += profile.first_name + ' '; }
+      if(profile.middle_name) { customer_name += profile.middle_name + ' '; }
+      if(profile.last_name) { customer_name += profile.last_name; }
+
+      this.customer_info = {
+        name: customer_name,
+        address: customer_address,
+        contact: customer_contact
+      }
+
+    });
+
+    this.activatedRoute.queryParams.subscribe((res)=>{
+      this.option_id = res.option_id;
+      this.service_id = res.service_id;
+      this.category_id = res.category_id;
+      this.payType = res.payType;
+
+      this.http.post(this.env.HERO_API + 'options/byID',{app_key: this.env.APP_ID, id: this.option_id })
+        .subscribe(data => {
+          this.option = data;
+          this.option = this.option.data;
+          this.form = this.option.form;
+          this.title = this.option.name;
+          this.quote_enable = this.option.enable_quote;
+          this.attributes = JSON.parse(this.form.attributes);
+        },error => { console.log(error);  
+      });
     });
 
     this.loading.dismiss();
@@ -70,15 +253,26 @@ export class FormPage implements OnInit {
   }
 
   tapBack() {
-    this.router.navigate(['/tabs/home'],{
-      queryParams: {},
+    this.router.navigate(['/tabs/option'],{
+      queryParams: {
+        category_id : this.category_id,
+        service_id : this.service_id
+      },
     });   
   }
 
   tapNext() {
     this.loading.present();
     this.http.post(this.env.HERO_API + 'jobs/create',
-      { app_key: this.env.APP_ID, customer_id: this.user.id, form_id: this.form.id, form_value: JSON.stringify(this.attributes), status: 'For Quotation'}
+      { app_key: this.env.APP_ID, 
+        customer_id: this.user.id, 
+        form_id: this.form.id, 
+        form_value: JSON.stringify(this.attributes), 
+        customer_info: JSON.stringify(this.customer_info), 
+        schedule_date: this.schedule_date, 
+        schedule_time: this.schedule_time, 
+        status: 'For Quotation'
+      }
     ).subscribe(
         data => {
           this.job = data;
@@ -107,9 +301,12 @@ export class FormPage implements OnInit {
             this.router.navigate(['/tabs/hero'],{
               queryParams: {
                   job_id : this.job.data.id,
-                  heroes : this.heroes,
+                  category_id : this.category_id,
+                  service_id : this.service_id,
+                  option_id : this.option_id,
+                  form_id : this.form.id,
                   payper : this.payper,
-                  title : this.title
+                  schedule_date: this.schedule_date
               },
             });
           }

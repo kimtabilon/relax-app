@@ -1,5 +1,13 @@
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-dropdown"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing...">
+    </ion-refresher-content>
+  </ion-refresher>
   <div class="body">
     <ion-row>
       <ion-col col-6><img src="../../assets/img/header-logo.png" class="logo"></ion-col>
@@ -7,7 +15,7 @@
     </ion-row>
     <ion-row class="user">
       <ion-col col-12>
-        <img class="img" src="https://www.fakepersongenerator.com/Face/male/male1085206437439.jpg"><br>
+        <img class="img" src="{{photo}}"><br>
         <span class="label">Welcome Back</span><br>
         <span class="name" *ngIf="user != undefined">{{ profile["first_name"]  }}</span><br>
       </ion-col>
@@ -21,7 +29,7 @@
       <ion-item *ngFor="let service of services" (click)="tapService(service)" detail="false">
         <ion-icon slot="start" name="{{service.icon}}" class="with-border"></ion-icon>
         <ion-label text-wrap><strong>{{service.name}}</strong><br><span class="info">{{service.description}}</span></ion-label>
-        <ion-icon *ngIf="service.options.length" slot="end" name="arrow-dropright-circle" class="arrow"></ion-icon>
+        <ion-icon *ngIf="service.options.length && service.heroes.length" slot="end" name="arrow-dropright-circle" class="arrow"></ion-icon>
       </ion-item> 
     </ion-list>
   

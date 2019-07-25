@@ -17,8 +17,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class JobviewPage implements OnInit {
 
-  user: User;  
-  profile: Profile;	
+  user:any = {
+    email: '',
+    password: '',
+    status: ''
+  };  
+  profile:any = {
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    birthday: '',
+    gender: '',
+    photo: ''
+  };  
   job:any;
   hero:any;
   heroExist:any = false;
@@ -27,6 +38,8 @@ export class JobviewPage implements OnInit {
   formExist:any = false;
   enableCancel:any = false;
   status:any = '';
+  photo:any = '';
+  customer_info:any = [];
 
   constructor(
   	private menu: MenuController, 
@@ -46,11 +59,15 @@ export class JobviewPage implements OnInit {
   ngOnInit() {
   }
 
-  ionViewWillEnter() {
-    this.loading.present();
+  doRefresh(event) {
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
     });
 
     this.activatedRoute.queryParams.subscribe((res)=>{
@@ -78,8 +95,52 @@ export class JobviewPage implements OnInit {
         this.enableCancel = true;
       }
     });
+    setTimeout(() => {
+      event.target.complete();
+    }, 2000);
+  }
 
-    this.loading.dismiss();
+  ionViewWillEnter() {
+    // this.loading.present();
+    this.storage.get('customer').then((val) => {
+      this.user = val.data;
+      this.profile = val.data.profile;
+
+      if(this.profile.photo!==null) {
+        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
+      } else {
+        this.photo = this.env.DEFAULT_IMG;
+      }
+    });
+
+    this.activatedRoute.queryParams.subscribe((res)=>{
+      this.job = JSON.parse(res.job);
+      this.attributes = JSON.parse(this.job.form_value);
+      this.customer_info = JSON.parse(this.job.customer_info);
+      this.status = this.job.status;
+
+      if(this.job.form !== null) {
+        this.form = this.job.form;
+        this.formExist = true;
+      }else{
+        this.formExist = false;
+      }
+
+      if(this.job.hero !== null) {
+        this.hero = this.job.hero;
+        this.heroExist = true;
+      } else {
+        this.heroExist = false;
+      }
+
+      if(this.job.status == 'Pending' || this.job.status == 'Completed') {
+        this.enableCancel = false;
+      } else {
+        this.enableCancel = true;
+      }
+    });
+
+    // this.loading.dismiss();
 
   }
 
