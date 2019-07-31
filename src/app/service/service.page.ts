@@ -83,9 +83,12 @@ export class ServicePage implements OnInit {
       this.http.post(this.env.HERO_API + 'categories/byID',{app_key: this.env.APP_ID, id: this.category_id })
         .subscribe(data => {
           let response:any = data;
-          this.category = response.data;
-          this.services = this.category.services;
-          this.title = this.category.name;
+          if(response !== null) {
+            this.category = response.data;
+            this.services = this.category.services;
+            this.title = this.category.name;  
+          }
+          
         },error => { console.log(error);  
       });
     });

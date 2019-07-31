@@ -32,7 +32,7 @@ export class HomePage implements OnInit {
     photo: ''
   };  
   photo:any = '';	
-  categories:any;
+  categories:any = [];
   title:any = 'Please wait...';
 
   constructor(
@@ -80,15 +80,18 @@ export class HomePage implements OnInit {
     this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
       .subscribe(data => {
           let response:any = data;
-          this.categories = response.data;
-          this.title = "Services"; 
-          if(this.categories.length == 1) {
-            this.router.navigate(['/tabs/service'],{
-              queryParams: {
-                  category_id : this.categories[0].id
-              },
-            });
+          if(response !== null) {
+            this.categories = response.data;
+            this.title = "Services"; 
+            if(this.categories.length == 1) {
+              this.router.navigate(['/tabs/service'],{
+                queryParams: {
+                    category_id : this.categories[0].id
+                },
+              });
+            }
           }
+            
       },error => {  });
     this.loading.dismiss();
   }
