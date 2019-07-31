@@ -60,41 +60,7 @@ export class JobviewPage implements OnInit {
   }
 
   doRefresh(event) {
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }
-    });
-
-    this.activatedRoute.queryParams.subscribe((res)=>{
-      this.job = JSON.parse(res.job);
-      this.attributes = JSON.parse(this.job.form_value);
-      this.status = this.job.status;
-
-      if(this.job.form !== null) {
-        this.form = this.job.form;
-        this.formExist = true;
-      }else{
-        this.formExist = false;
-      }
-
-      if(this.job.hero !== null) {
-        this.hero = this.job.hero;
-        this.heroExist = true;
-      } else {
-        this.heroExist = false;
-      }
-
-      if(this.job.status == 'Pending' || this.job.status == 'Completed') {
-        this.enableCancel = false;
-      } else {
-        this.enableCancel = true;
-      }
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);

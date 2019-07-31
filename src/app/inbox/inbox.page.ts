@@ -30,17 +30,17 @@ export class InboxPage implements OnInit {
     birthday: '',
     gender: '',
     photo: ''
-  };  	
+  };    
   categories:any;
-  app:any;
   jobs:any = [];
   photo:any = '';
+  title:any = 'Please  wait...'
 
   constructor(
     private http: HttpClient,
-  	private menu: MenuController, 
-  	private authService: AuthService,
-  	private navCtrl: NavController,
+    private menu: MenuController, 
+    private authService: AuthService,
+    private navCtrl: NavController,
     private storage: Storage,
     private alertService: AlertService,
     public loading: LoadingService,
@@ -48,7 +48,7 @@ export class InboxPage implements OnInit {
     public router : Router,
     private env: EnvService
   ) { 
-  	this.menu.enable(true);	
+    this.menu.enable(true);  
   }
 
   ngOnInit() {
@@ -56,30 +56,7 @@ export class InboxPage implements OnInit {
   }
 
   doRefresh(event) {
-    this.authService.validateApp();
-
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile; 
-
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }   
-
-      /*Get My Jobs*/
-      this.http.post(this.env.HERO_API + 'customer/quotations',{customer_id: this.user.id, app_key: this.env.APP_ID})
-        .subscribe(data => {
-            this.jobs = data;
-            this.jobs = this.jobs.data;
-        },error => { });
-
-
-      this.storage.get('app').then((val) => {
-        this.app = val.data;
-      }); 
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -103,15 +80,11 @@ export class InboxPage implements OnInit {
       /*Get My Jobs*/
       this.http.post(this.env.HERO_API + 'customer/quotations',{customer_id: this.user.id, app_key: this.env.APP_ID})
         .subscribe(data => {
-            this.jobs = data;
-            this.jobs = this.jobs.data;
+            let response:any = data;
+            this.jobs = response.data;
         },error => { });
-
-
-      this.storage.get('app').then((val) => {
-        this.app = val.data;
-      }); 
     });
+    this.title = 'My Inbox';
 
     this.loading.dismiss();
   }
@@ -120,11 +93,11 @@ export class InboxPage implements OnInit {
     this.loading.present();
     
     if(job.quotations.length) {
-    	this.router.navigate(['/tabs/quotation'],{
-	        queryParams: {
-	            job : JSON.stringify(job)
-	        },
-	      });
+      this.router.navigate(['/tabs/quotation'],{
+          queryParams: {
+              job : JSON.stringify(job)
+          },
+        });
     } else {
       // this.alertService.presentToast("Service not active");
     }

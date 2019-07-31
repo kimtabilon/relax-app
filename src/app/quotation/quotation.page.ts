@@ -53,22 +53,7 @@ export class QuotationPage implements OnInit {
   }
 
   doRefresh(event) {
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }
-    });
-
-    this.activatedRoute.queryParams.subscribe((res)=>{
-        this.job = JSON.parse(res.job);
-        this.quotations = this.job.quotations;
-        this.title = this.job.form.option.name;
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);

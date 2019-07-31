@@ -62,6 +62,7 @@ export class HeroPage implements OnInit {
   }
 
   doRefresh(event) {
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);

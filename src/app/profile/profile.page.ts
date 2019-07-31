@@ -92,7 +92,7 @@ export class ProfilePage implements OnInit {
   }
 
   doRefresh(event) {
-    
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -389,9 +389,11 @@ export class ProfilePage implements OnInit {
   }
 
   logout() {
+    this.loading.present();
     this.authService.logout();
     this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login');  
+    this.loading.dismiss();
   }
 
 }

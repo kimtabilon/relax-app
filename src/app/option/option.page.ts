@@ -60,31 +60,7 @@ export class OptionPage implements OnInit {
   }
 
   doRefresh(event) {
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }
-    });
-
-    this.activatedRoute.queryParams.subscribe((res)=>{
-      this.service_id = res.service_id;
-      this.category_id = res.category_id;
-
-      this.http.post(this.env.HERO_API + 'services/byID',{app_key: this.env.APP_ID, id: this.service_id })
-        .subscribe(data => {
-          this.service = data;
-          this.service = this.service.data;
-          this.options = this.service.options;
-          this.title = this.service.name;
-          this.payType = this.service.pay_type;
-        },error => { console.log(error);  
-      });
-
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);

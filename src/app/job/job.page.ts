@@ -31,10 +31,10 @@ export class JobPage implements OnInit {
     gender: '',
     photo: ''
   };  
-  categories:any;
-  app:any;
   jobs:any = [];
   jobpage:any = true;
+  myjobstitle:any = 'Please wait..';
+  completedtitle:any = 'Completed';
   photo:any = '';
 
   constructor(
@@ -57,32 +57,7 @@ export class JobPage implements OnInit {
   }
 
   doRefresh(event) {
-    this.jobpage = true;
-
-    this.authService.validateApp();
-
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }    
-
-      /*Get My Jobs*/
-      this.http.post(this.env.HERO_API + 'customer/jobs',{customer_id: this.user.id, app_key: this.env.APP_ID})
-        .subscribe(data => {
-            this.jobs = data;
-            this.jobs = this.jobs.data;
-        },error => { });
-
-
-      this.storage.get('app').then((val) => {
-        this.app = val.data;
-      }); 
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -108,20 +83,21 @@ export class JobPage implements OnInit {
       /*Get My Jobs*/
       this.http.post(this.env.HERO_API + 'customer/jobs',{customer_id: this.user.id, app_key: this.env.APP_ID})
         .subscribe(data => {
-            this.jobs = data;
-            this.jobs = this.jobs.data;
-        },error => { });
+            let response:any = data;
+            if(response !== null) {
+              this.jobs = response.data;
+            } else {
+              this.jobs = [];
+            }
+            this.myjobstitle = 'My Jobs';
+        },error => { this.myjobstitle = 'My Jobs'; });
 
-
-      this.storage.get('app').then((val) => {
-        this.app = val.data;
-      }); 
     });
 
     this.loading.dismiss();
   }
 
-  tapJob(job) {
+  tapJob(job) { 
     this.loading.present();
     this.router.navigate(['/tabs/jobview'],{
         queryParams: {
@@ -135,24 +111,36 @@ export class JobPage implements OnInit {
   tapCompleted() {
     this.loading.present();
     this.jobpage = false;
+    this.completedtitle = 'Please wait...'
     /*Get My Jobs*/
     this.http.post(this.env.HERO_API + 'customer/jobcompleted',{customer_id: this.user.id, app_key: this.env.APP_ID})
       .subscribe(data => {
-          this.jobs = data;
-          this.jobs = this.jobs.data;
-      },error => { });
+          let response:any = data;
+          if(response !== null) {
+            this.jobs = response.data;
+          } else {
+            this.jobs = [];
+          }
+          this.completedtitle = 'Completed';
+      },error => { this.completedtitle = 'Completed'; });
     this.loading.dismiss();  
   } 
 
   tapMyJobs() {
     this.loading.present();
     this.jobpage = true;
+    this.myjobstitle = 'Please wait...';
     /*Get My Jobs*/
     this.http.post(this.env.HERO_API + 'customer/jobs',{customer_id: this.user.id, app_key: this.env.APP_ID})
       .subscribe(data => {
-          this.jobs = data;
-          this.jobs = this.jobs.data;
-      },error => {  });
+          let response:any = data;
+          if(response !== null) {
+            this.jobs = response.data;
+          } else {
+            this.jobs = [];
+          }
+          this.myjobstitle = 'My Jobs';
+      },error => { this.myjobstitle = 'My Jobs'; });
     this.loading.dismiss();
   } 
 

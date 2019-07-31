@@ -57,29 +57,7 @@ export class ServicePage implements OnInit {
   }
 
   doRefresh(event) {
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }
-    });
-
-    this.activatedRoute.queryParams.subscribe((res)=>{
-      this.category_id = res.category_id;
-
-      this.http.post(this.env.HERO_API + 'categories/byID',{app_key: this.env.APP_ID, id: this.category_id })
-        .subscribe(data => {
-          this.category = data;
-          this.category = this.category.data;
-          this.services = this.category.services;
-          this.title = this.category.name;
-        },error => { console.log(error);  
-      });
-    });
+    this.ionViewWillEnter();
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -104,8 +82,8 @@ export class ServicePage implements OnInit {
 
       this.http.post(this.env.HERO_API + 'categories/byID',{app_key: this.env.APP_ID, id: this.category_id })
         .subscribe(data => {
-          this.category = data;
-          this.category = this.category.data;
+          let response:any = data;
+          this.category = response.data;
           this.services = this.category.services;
           this.title = this.category.name;
         },error => { console.log(error);  

@@ -54,30 +54,7 @@ export class HomePage implements OnInit {
   }
 
   doRefresh(event) {
-    this.authService.validateApp();
-
-    this.storage.get('customer').then((val) => {
-      // console.log(val.data);
-      this.user = val.data;
-      this.profile = val.data.profile;
-
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
-      }
-    });
-
-    // this.getService.all();
-
-    this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
-      .subscribe(data => {
-          this.categories = data;
-          this.categories = this.categories.data;
-          this.title = "Services";
-          // console.log(this.categories);
-      },error => {  });
-    
+    this.ionViewWillEnter();    
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -100,14 +77,18 @@ export class HomePage implements OnInit {
       }
     });
 
-    // this.getService.all();
-
     this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
       .subscribe(data => {
-          this.categories = data;
-          this.categories = this.categories.data;
+          let response:any = data;
+          this.categories = response.data;
           this.title = "Services"; 
-          // console.log(this.categories);
+          if(this.categories.length == 1) {
+            this.router.navigate(['/tabs/service'],{
+              queryParams: {
+                  category_id : this.categories[0].id
+              },
+            });
+          }
       },error => {  });
     this.loading.dismiss();
   }
