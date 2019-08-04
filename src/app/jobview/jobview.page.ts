@@ -80,30 +80,36 @@ export class JobviewPage implements OnInit {
     });
 
     this.activatedRoute.queryParams.subscribe((res)=>{
-      this.job = JSON.parse(res.job);
-      this.attributes = JSON.parse(this.job.form_value);
-      this.customer_info = JSON.parse(this.job.customer_info);
-      this.status = this.job.status;
+      let job_id:any = res.job_id;
 
-      if(this.job.form !== null) {
-        this.form = this.job.form;
-        this.formExist = true;
-      }else{
-        this.formExist = false;
-      }
+      this.http.post(this.env.HERO_API + 'jobs/byID',{id: job_id})
+        .subscribe(data => {
+            let response:any = data;
+            this.job = response.data;
+            this.attributes = JSON.parse(this.job.form_value);
+            this.customer_info = JSON.parse(this.job.customer_info);
+            this.status = this.job.status;
 
-      if(this.job.hero !== null) {
-        this.hero = this.job.hero;
-        this.heroExist = true;
-      } else {
-        this.heroExist = false;
-      }
+            if(this.job.form !== null) {
+              this.form = this.job.form;
+              this.formExist = true;
+            }else{
+              this.formExist = false;
+            }
 
-      if(this.job.status == 'Pending' || this.job.status == 'Completed') {
-        this.enableCancel = false;
-      } else {
-        this.enableCancel = true;
-      }
+            if(this.job.hero !== null) {
+              this.hero = this.job.hero;
+              this.heroExist = true;
+            } else {
+              this.heroExist = false;
+            }
+
+            if(this.job.status == 'Pending' || this.job.status == 'Completed') {
+              this.enableCancel = false;
+            } else {
+              this.enableCancel = true;
+            }
+        },error => { console.log(error); });    
     });
 
     // this.loading.dismiss();

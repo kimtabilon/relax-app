@@ -95,7 +95,7 @@ export class InboxPage implements OnInit {
     if(job.quotations.length) {
       this.router.navigate(['/tabs/quotation'],{
           queryParams: {
-              job : JSON.stringify(job)
+              job_id : job.id
           },
         });
     } else {

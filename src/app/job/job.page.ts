@@ -101,7 +101,7 @@ export class JobPage implements OnInit {
     this.loading.present();
     this.router.navigate(['/tabs/jobview'],{
         queryParams: {
-            job : JSON.stringify(job)
+            job_id : job.id
         },
       });
     this.loading.dismiss();
