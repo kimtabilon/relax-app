@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { Profile } from 'src/app/models/profile';
@@ -30,11 +30,10 @@ export class InboxPage implements OnInit {
     birthday: '',
     gender: '',
     photo: ''
-  };    
-  categories:any;
-  jobs:any = [];
+  };  
   photo:any = '';
-  title:any = 'Please  wait...'
+  notifications:any = [];
+  title:any = 'Please wait...';
 
   constructor(
     private http: HttpClient,
@@ -46,7 +45,8 @@ export class InboxPage implements OnInit {
     public loading: LoadingService,
     public getService: GetService,
     public router : Router,
-    private env: EnvService
+    private env: EnvService,
+    public alertCtrl: AlertController
   ) { 
     this.menu.enable(true);  
   }
@@ -65,44 +65,99 @@ export class InboxPage implements OnInit {
   ionViewWillEnter() {
     this.loading.present();
 
-    this.authService.validateApp();
-
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;    
-
+      console.log(this.user.id);
       if(this.profile.photo!==null) {
         this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
       } else {
         this.photo = this.env.DEFAULT_IMG;
       }
-
+      this.authService.validateApp(this.user.email,this.user.password);
+      
       /*Get My Jobs*/
-      this.http.post(this.env.HERO_API + 'customer/quotations',{customer_id: this.user.id, app_key: this.env.APP_ID})
+      this.http.post(this.env.HERO_API + 'inboxes/byUser',{app_key: this.env.APP_ID, user_id: this.user.id})
         .subscribe(data => {
             let response:any = data;
-            this.jobs = response.data;
-        },error => { });
-    });
-    this.title = 'My Inbox';
+            this.notifications = response.data;
+            // console.log(this.notifications);
+            this.title = 'My Inbox';
+            this.loading.dismiss();
+        },error => { 
+            console.log(error); 
+            this.title = 'My Inbox'; 
+            this.loading.dismiss(); 
+        });
 
-    this.loading.dismiss();
+    });
   }
 
-  tapJob(job) {
+  async tapNoti(noti) {
     this.loading.present();
-    
-    if(job.quotations.length) {
-      this.router.navigate(['/tabs/quotation'],{
-          queryParams: {
-              job_id : job.id
-          },
-        });
-    } else {
-      // this.alertService.presentToast("Service not active");
-    }
 
-    this.loading.dismiss();
+    switch (noti.type) {
+      case "Available Job":
+        this.router.navigate(['/tabs/quotation'],{
+            queryParams: {
+                job_id : noti.redirect_id,
+                noti_id: noti.id
+            },
+          });
+        this.loading.dismiss();
+        break;
+
+      case "For Confirmation":
+        this.router.navigate(['/tabs/jobview'],{
+            queryParams: {
+                job_id : noti.redirect_id,
+                noti_id: noti.id
+            },
+          });
+        this.loading.dismiss();
+        break;  
+
+      case "Quotation":
+        this.router.navigate(['/tabs/quotation'],{
+            queryParams: {
+                job_id : noti.redirect_id,
+                noti_id: noti.id
+            },
+          });
+        this.loading.dismiss();
+        break;    
+
+      default:
+        this.loading.dismiss();
+        
+        let alert = await this.alertCtrl.create({
+          header: '',
+          message: 'Remove Notification',
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+              handler: (blah) => {
+                
+              }
+            }, {
+              text: 'Remove',
+              handler: () => {
+                this.loading.present();
+                this.http.post(this.env.HERO_API + 'inboxes/hide',{id: noti.id})
+                .subscribe(data => {
+                    let response:any = data;
+                    noti.seen = 'Yes';
+                    this.loading.dismiss();
+                },error => { this.loading.dismiss(); });
+              }
+            }
+          ]
+        });
+        await alert.present();
+        break;
+    }
       
   }
 

@@ -68,8 +68,6 @@ export class JobPage implements OnInit {
 
     this.jobpage = true;
 
-    this.authService.validateApp();
-
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;  
@@ -79,6 +77,8 @@ export class JobPage implements OnInit {
       } else {
         this.photo = this.env.DEFAULT_IMG;
       }  
+
+      this.authService.validateApp(this.user.email,this.user.password);
 
       /*Get My Jobs*/
       this.http.post(this.env.HERO_API + 'customer/jobs',{customer_id: this.user.id, app_key: this.env.APP_ID})
@@ -90,11 +90,14 @@ export class JobPage implements OnInit {
               this.jobs = [];
             }
             this.myjobstitle = 'My Jobs';
-        },error => { this.myjobstitle = 'My Jobs'; });
+            this.loading.dismiss();
+        },error => { 
+          this.myjobstitle = 'My Jobs'; 
+          this.loading.dismiss();
+          console.log(error);
+        });
 
     });
-
-    this.loading.dismiss();
   }
 
   tapJob(job) { 

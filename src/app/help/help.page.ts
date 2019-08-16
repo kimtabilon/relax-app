@@ -61,13 +61,11 @@ export class HelpPage implements OnInit {
 
   ionViewWillEnter() {
     this.loading.present(); 
-
-    this.authService.validateApp();
     
     this.storage.get('customer').then((val) => {
       let response:any = val.data;
       this.profile = response.profile;
-
+      
       if(this.profile.photo!==null) {
         this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
       } else {

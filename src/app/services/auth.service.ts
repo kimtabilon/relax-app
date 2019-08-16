@@ -6,6 +6,8 @@ import { Storage } from '@ionic/storage';
 import { EnvService } from './env.service';
 import { AlertService } from './alert.service';
 import { User } from '../models/user';
+import { AppVersion } from '@ionic-native/app-version/ngx';
+import { Market } from '@ionic-native/market/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -21,16 +23,40 @@ export class AuthService {
     private storage: Storage,
     private env: EnvService,
     private navCtrl: NavController,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private appVersion: AppVersion,
+    private market: Market
   ) { }
 
-  validateApp() {
+  validateApp(email, password) {
     this.http.post(this.env.HERO_API + 'app/validate',
       {key: this.env.APP_ID}
     ).subscribe(
         data => {
-          // this.storage.set('customer', data)
-          // 
+          let response:any = data;
+          let app:any = response.data;
+
+          this.appVersion.getVersionNumber().then(value => {
+            if(value != app.build) {
+              
+              this.http.post(this.env.HERO_API + 'customer/login',{email: email, password: password})
+              .subscribe(data => {
+                  this.storage.set('hero', data);
+              },error => { console.log(error); });
+
+              this.appVersion.getPackageName().then(value => {
+                this.market.open(value);
+              }).catch(err => {
+                alert(err);
+              });
+            }
+            
+          }).catch(err => {
+            alert(err);
+          });
+           
+          this.storage.set('app', response);
+
         },
         error => {
           this.alertService.presentToast("Invalid App Key"); 
@@ -51,7 +77,7 @@ export class AuthService {
         this.storage.set('token', token)
         .then(
           () => {
-            console.log('Token Stored');
+            // console.log('Token Stored');
           },
           error => console.error('Error storing item', error)
         );
@@ -80,6 +106,7 @@ export class AuthService {
   		birthmonth: String, 
   		birthday: String, 
   		birthyear: String, 
+      gender: String, 
   		
   		phone_number: String, 
 
@@ -112,19 +139,6 @@ export class AuthService {
   }
 
   logout() {
-    // const headers = new HttpHeaders({
-    //   'Authorization': this.token["token_type"]+" "+this.token["access_token"]
-    // });
-    // return this.http.get(this.env.API_URL + 'customers/1', { headers: headers })
-    // .pipe(
-    //   tap(data => {
-    //     this.storage.remove("token");
-    //     this.isLoggedIn = false;
-    //     delete this.token;
-    //     return data;
-    //   })
-    // )
-
     this.storage.remove("token");
     this.storage.remove("customer");
     this.isLoggedIn = false;

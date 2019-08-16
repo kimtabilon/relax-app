@@ -35,7 +35,7 @@ export class LoginPage implements OnInit {
           // console.log(data);
           this.loading.dismiss();
           this.storage.set('customer', data)
-          this.alertService.presentToast("Logged In");
+          // this.alertService.presentToast("Logged In");
         },
         error => {
           console.log(error);

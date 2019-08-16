@@ -100,14 +100,14 @@ export class ProfilePage implements OnInit {
 
   ionViewWillEnter() {
     this.loading.present(); 
-
-    this.authService.validateApp();
     
     this.storage.get('customer').then((val) => {
       // console.log(val.data);
       this.customer = val;
       this.user = val.data;
       this.profile = val.data.profile;
+
+      this.authService.validateApp(this.user.email,this.user.password);
 
       if(this.profile.addresses.length) {
         this.address = this.profile.addresses[0];

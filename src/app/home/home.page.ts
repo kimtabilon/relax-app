@@ -62,8 +62,6 @@ export class HomePage implements OnInit {
 
   ionViewWillEnter() {
     this.loading.present(); 
-
-    this.authService.validateApp();
     
     this.storage.get('customer').then((val) => {
       // console.log(val.data);
@@ -75,6 +73,7 @@ export class HomePage implements OnInit {
       } else {
         this.photo = this.env.DEFAULT_IMG;
       }
+      this.authService.validateApp(this.user.email,this.user.password);
     });
 
     this.http.post(this.env.HERO_API + 'categories/all',{key: this.env.APP_ID})
@@ -91,9 +90,13 @@ export class HomePage implements OnInit {
               });
             }
           }
+
+          this.loading.dismiss();
             
-      },error => {  });
-    this.loading.dismiss();
+      },error => {
+        console.log(error);
+        this.loading.dismiss();
+      });
   }
 
   tapCategory(category) {

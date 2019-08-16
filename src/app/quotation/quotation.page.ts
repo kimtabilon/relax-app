@@ -73,15 +73,19 @@ export class QuotationPage implements OnInit {
 
     this.activatedRoute.queryParams.subscribe((res)=>{
         let job_id:any = res.job_id;
+        let noti_id:any = res.noti_id;
         this.http.post(this.env.HERO_API + 'jobs/byID',{id: job_id})
           .subscribe(data => {
               let response:any = data;
               this.job = response.data;
               this.quotations = this.job.quotations;
               this.title = this.job.form.option.name;
-        },error => { console.log(error); });  
+              this.loading.dismiss();
+        },error => { 
+          this.loading.dismiss();
+          console.log(error); 
+        });  
     });
-    this.loading.dismiss();
   }
 
   tapHero(quote) {
