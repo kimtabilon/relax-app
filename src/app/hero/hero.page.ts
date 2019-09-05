@@ -1,14 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
-import { AuthService } from 'src/app/services/auth.service';
-import { User } from 'src/app/models/user';
-import { Profile } from 'src/app/models/profile';
+import { Component, OnInit, Input } from '@angular/core';
+import { ModalController, AlertController } from '@ionic/angular';
 import { AlertService } from 'src/app/services/alert.service';
 import { EnvService } from 'src/app/services/env.service';
-import { Storage } from '@ionic/storage';
-import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoadingService } from 'src/app/services/loading.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ProfileviewPage } from '../profileview/profileview.page';
 
 @Component({
   selector: 'app-hero',
@@ -16,137 +13,144 @@ import { LoadingService } from 'src/app/services/loading.service';
   styleUrls: ['./hero.page.scss'],
 })
 export class HeroPage implements OnInit {
-  user:any = {
-    email: '',
-    password: '',
-    status: ''
-  };  
-  profile:any = {
-    first_name: '',
-    middle_name: '',
-    last_name: '',
-    birthday: '',
-    gender: '',
-    photo: ''
-  };  	
-  photo:any = '';
 
-  payper:any;
-  amount:any;
-  title:any = 'Please wait...';
+  img_link:any = '';
+  default_photo:any = '';
+
+  @Input() input:any;
+  @Input() option:any;
+  @Input() job:any;
+
   heroes:any = [];
-
-  job_id:any;
-  form_id:any;
-  option_id:any;
-  service_id:any;
-  category_id:any;
-  schedule_date:any;
   
   constructor(
-  	private menu: MenuController, 
-  	private authService: AuthService,
-  	private navCtrl: NavController,
-    private storage: Storage,
     private alertService: AlertService,
-    public router : Router,
-    public activatedRoute : ActivatedRoute,
     private http: HttpClient,
     public loading: LoadingService,
-    private env: EnvService
+    private env: EnvService,
+    public modalController: ModalController,
+    public alertController: AlertController,
+    public router : Router,
   ) {
-  	this.menu.enable(true);	
   }
 
   ngOnInit() {
-  }
 
-  doRefresh(event) {
-    this.ionViewWillEnter();
-    setTimeout(() => {
-      event.target.complete();
-    }, 2000);
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.storage.get('customer').then((val) => {
-      this.user = val.data;
-      this.profile = val.data.profile;
-      if(this.profile.photo!==null) {
-        this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
-      } else {
-        this.photo = this.env.DEFAULT_IMG;
+    // console.log(this.option);
+    this.heroes = this.option.heroes;
+    this.img_link = this.env.IMAGE_URL + 'uploads/';
+    this.default_photo = this.env.DEFAULT_IMG;
+  }
+
+  async selectHero(hero) {
+    // this.loading.present();
+    let amount:any = (hero.pivot.pay_per*1)*(this.input.payper);
+
+    this.job.hero_id = hero.id;
+    this.job.amount = amount;
+    this.job.hours = this.input.payper;
+
+    let photo:any = this.default_photo;
+    if(hero.profile.photo != null) {
+      photo = this.img_link+hero.profile.photo;
+    } 
+
+    if(hero.settings.auto_confirm) {
+      this.job.status = "Pending";
+    } else {
+      this.job.status = "For Confirmation";
+    }
+
+    const alert = await this.alertController.create({
+      header: 'You Selected a Hero',
+      message: hero.profile.first_name +' ' + hero.profile.last_name + ' will be your hero for this job.',
+      buttons: [
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            // console.log('Confirm Cancel: blah');
+
+          }
+        }, {
+          text: 'Continue',
+          handler: () => {
+            this.loading.present();
+
+            let job_url:any = this.env.HERO_API + 'jobs/create';
+
+            if(this.input.reapply) {
+              job_url = this.env.HERO_API + 'jobs/reapply';
+            }
+
+            this.http
+              .post(job_url, this.job)
+              .subscribe(
+                data => {
+                  // this.job = data;
+                },
+                error => {
+                  this.loading.dismiss();
+                  this.alertService.presentToast("Server not responding!"); 
+                },
+                () => {
+                  // this.alertService.presentToast("Please wait for confirmation!"); 
+                  this.modalController.dismiss({
+                    'dismissed': true,
+                    input: this.input
+                  });
+
+                  this.router.navigate(['/tabs/payment'],{ 
+                    queryParams: {
+                      service : JSON.stringify({ 
+                        name: this.option.service.name + ' - ' + this.option.name,
+                        amount: amount,
+                        provider: hero.profile.first_name + ' ' + hero.profile.last_name,
+                        status: this.job.status,
+                        photo: photo
+                      })
+                    },
+                  });
+                  this.loading.dismiss();
+                }
+              );
+
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+
+    
+  }
+
+  async view(hero) {
+    console.log(hero);
+    const modal = await this.modalController.create({
+      component: ProfileviewPage,
+      componentProps: { 
+        user: hero
       }
     });
 
-    this.activatedRoute.queryParams.subscribe((res)=>{
-      this.job_id = res.job_id;
-      this.form_id = res.form_id;
-      this.option_id = res.option_id;
-      this.service_id = res.service_id;
-      this.category_id = res.category_id;
-      this.schedule_date = res.schedule_date;
-
-      this.payper = res.payper*1;
-
-      this.http.post(this.env.HERO_API + 'services/heroes',{app_key: this.env.APP_ID, id: this.service_id, schedule_date: this.schedule_date })
-        .subscribe(data => {
-          let response:any = data;
-          this.heroes = response.data.heroes;
-          this.title = response.data.name;
-          console.log(data);
-        },error => { console.log(error);  
-      });
+    modal.onDidDismiss()
+      .then((data) => {
+        let response:any = data;
     });
-    this.loading.dismiss();
+
+    return await modal.present();
   }
 
-  tapHero(hero) {
-    this.loading.present();
-    this.amount = (hero.pivot.pay_per*1)*(this.payper);
-
-    this.http.post(this.env.HERO_API + 'jobs/modify',
-      {job_id: this.job_id, hero_id: hero.id, amount: this.amount}
-    ).subscribe(
-        data => {
-          // this.job = data;
-        },
-        error => {
-          this.alertService.presentToast("Server not responding!"); 
-        },
-        () => {
-          // this.alertService.presentToast("Please wait for confirmation!"); 
-          this.router.navigate(['/tabs/summary'],{
-            queryParams: {
-              service : JSON.stringify({ 
-                name: this.title,
-                amount: this.amount,
-                provider: hero.profile.first_name + ' ' + hero.profile.last_name,
-                status: 'For Confirmation'
-              })
-            },
-          });
-        }
-      );
-
-    this.loading.dismiss();
-  }
-
-  tapBack() {
-    this.loading.present();
-    this.router.navigate(['/tabs/home'],{
-      queryParams: {},
-    });   
-    this.loading.dismiss();
-  }
-
-  logout() {
-    this.loading.present();
-    this.authService.logout();
-    this.alertService.presentToast('Successfully logout');  
-    this.navCtrl.navigateRoot('/login');  
-    this.loading.dismiss();
+  dismiss() {
+    this.modalController.dismiss({
+      'dismissed': true,
+      input: this.input
+    });
   }
 
 }

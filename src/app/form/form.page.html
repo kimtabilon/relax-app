@@ -41,15 +41,22 @@
     <div *ngFor="let a of attributes">
       <ion-row padding class="form-header"><ion-col class="text-center">{{a.title}}</ion-col></ion-row>
       <ion-row padding class="field-wrap" *ngFor="let field of a.fields">
-        <span class="field-text">{{field.label}}</span>
+        <span class="field-text">{{field.label}} <span *ngIf="field.required" class="required"> *required</span></span>
+        
         <ion-label class="field-label"><ion-icon name="{{field.icon}}" class="field-icon"></ion-icon></ion-label>
+        
         <ion-input *ngIf="field.type == 'text'" class="field" [(ngModel)]="field.input" placeholder="{{field.label}}"></ion-input>
+        
         <ion-datetime *ngIf="field.type == 'date'" [(ngModel)]="field.input" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="{{field.label}}" class="field-date"></ion-datetime>
+        
         <ion-datetime *ngIf="field.type == 'time'" [(ngModel)]="field.input" display-format="hh:mm a" picker-format="hh:mm a" placeholder="{{field.label}}" class="field-date"></ion-datetime>
+        
         <ion-textarea *ngIf="field.type == 'textarea'" [(ngModel)]="field.input" placeholder="{{field.label}}" class="field" ></ion-textarea>
+        
         <ion-select *ngIf="field.type == 'dropdown'" [(ngModel)]="field.input" placeholder="{{field.label}}" class="field" >
           <ion-select-option *ngFor="let select of field.values" value="{{select}}">{{select}}</ion-select-option>
         </ion-select>
+      
       </ion-row>
     </div>
 
@@ -58,18 +65,18 @@
       <ion-row padding class="field-wrap">
         <span class="field-text">Name</span>
         <ion-label class="field-label"><ion-icon name="person" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="customer_info.name" placeholder="Name"></ion-input>
+        <ion-input class="field" required [(ngModel)]="customer_info.name" placeholder="Name"></ion-input>
       </ion-row>
       <ion-row padding class="field-wrap">
         <span class="field-text">Address</span>
         <ion-label class="field-label"><ion-icon name="pin" class="field-icon"></ion-icon></ion-label>
         <ion-textarea [(ngModel)]="customer_info.address" placeholder="Address" class="field" ></ion-textarea>
       </ion-row>
-      <ion-row padding class="field-wrap">
+      <!-- <ion-row padding class="field-wrap">
         <span class="field-text">Contact</span>
         <ion-label class="field-label"><ion-icon name="call" class="field-icon"></ion-icon></ion-label>
         <ion-input class="field" [(ngModel)]="customer_info.contact" placeholder="Contact"></ion-input>
-      </ion-row>
+      </ion-row> -->
     </div>
 
     <div>
@@ -80,22 +87,23 @@
         <ion-datetime [(ngModel)]="schedule_date" min="{{current_date}}" max="{{next_year}}" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="Date" class="field-date"></ion-datetime>
       </ion-row>
       <ion-row padding class="field-wrap">
-        <span class="field-text">Time *2 hours ahead of current time and date</span>
+        <span class="field-text">Time</span>
         <ion-label class="field-label"><ion-icon name="clock" class="field-icon"></ion-icon></ion-label>
         <ion-datetime [(ngModel)]="schedule_time" display-format="hh:mm a" picker-format="hh:mm a" placeholder="Time" class="field-date"></ion-datetime>
       </ion-row>
     </div>
 
     <div *ngIf="quote_enable == 'No'">
-      <ion-row padding class="form-header"><ion-col class="text-center">Pay Per {{payType}}</ion-col></ion-row>
+      <ion-row padding class="form-header"><ion-col class="text-center">Number of Hours</ion-col></ion-row>
       <ion-row padding class="field-wrap">
-        <span class="field-text">How many {{payType}}/s?</span>
+        <!-- <span class="field-text">How many {{payType}}/s?</span> -->
         <ion-label class="field-label"><ion-icon name="clock" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="payper" placeholder="How many {{payType}}/s?"></ion-input>
+        <ion-input class="field" [(ngModel)]="payper" placeholder="Number of Hours"></ion-input>
       </ion-row>
     </div>
 
-    <button class="btn btn-login" (click)="tapNext()" >NEXT</button>
+    <button class="btn btn-login" (click)="findHero()"  *ngIf="quote_enable == 'No'">{{button_text}}</button>
+    <button class="btn btn-login" (click)="requestQuote()"  *ngIf="quote_enable == 'Yes'">{{button_text}}</button>
   </ion-list>
     
 </ion-content>

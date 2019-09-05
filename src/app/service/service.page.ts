@@ -98,7 +98,7 @@ export class ServicePage implements OnInit {
 
   tapService(service) {
     // console.log(this.services);
-    if(service.options.length && service.heroes.length) {
+    if(service.options.length) {
       this.router.navigate(['/tabs/option'],{
         queryParams: {
             service_id : service.id,
@@ -112,6 +112,7 @@ export class ServicePage implements OnInit {
 
   tapBack() {
     // console.log(service);
+    this.services = [];
     this.router.navigate(['/tabs/home'],{
       queryParams: {},
     });

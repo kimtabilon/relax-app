@@ -33,6 +33,9 @@ export class QuotationPage implements OnInit {
   job:any;
   quotations:any;
   photo:any = '';
+
+  img_link:any = '';
+  default_photo:any = '';
   
   constructor(
   	private menu: MenuController, 
@@ -71,6 +74,9 @@ export class QuotationPage implements OnInit {
       }
     });
 
+    this.img_link = this.env.IMAGE_URL + 'uploads/';
+    this.default_photo = this.env.DEFAULT_IMG;
+
     this.activatedRoute.queryParams.subscribe((res)=>{
         let job_id:any = res.job_id;
         let noti_id:any = res.noti_id;
@@ -91,19 +97,37 @@ export class QuotationPage implements OnInit {
   tapHero(quote) {
     this.loading.present();
     this.http.post(this.env.HERO_API + 'jobs/modify',
-      {job_id: this.job.id, hero_id: quote.hero.id, amount: quote.amount}
-    ).subscribe(
+        {
+          job_id: this.job.id, 
+          hero_id: quote.hero.id, 
+          amount: quote.amount
+        })
+      .subscribe(
         data => {
-          // this.job = data;
+          let response:any = data;
+          // this.job = response.data;
+
+          let photo:any = this.env.DEFAULT_IMG;
+          if(quote.hero.profile.photo!=null) {
+            photo = this.img_link+quote.hero.profile.photo;
+          }
+
+          this.router.navigate(['/tabs/payment'],{ 
+            queryParams: {
+              service : JSON.stringify({ 
+                name: this.job.form.option.service.name + ' - ' + this.job.form.option.name,
+                amount: quote.amount,
+                provider: quote.hero.profile.first_name + ' ' + quote.hero.profile.last_name,
+                status: this.job.status,
+                photo: photo
+              })
+            },
+          });
         },
         error => {
           this.alertService.presentToast("Server not responding!"); 
         },
         () => {
-          // this.alertService.presentToast("Please wait for confirmation!"); 
-          this.router.navigate(['/tabs/job'],{
-            queryParams: {},
-          });
         }
       );
     this.loading.dismiss();

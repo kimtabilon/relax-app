@@ -80,14 +80,22 @@
 		background: #fff;
 	}
 
+	// .service-label {
+	// 	margin-left: 10px;
+	// 	background: $item-blue;
+	// 	padding: 10px 15px;
+	// 	line-height: 30px;
+	// 	color: $gold;
+	// 	font-size: 14pt;
+	// }
 	.service-label {
 		line-height: 30px;
 		margin-left: 10px;
-		border-radius: 0 10px 0 0;
+		border-radius: 0 20px 0 0;
+		background: $gold;
 		padding: 10px 15px 10px 10px;
-		background: $item-blue;
-		color: $gold;
-		font-size: 14pt;
+		color: $brown;
+		font-size: 9pt;
 	}
 
 	.active-tab {
@@ -105,14 +113,14 @@
   .field {
 		background: $item-blue;
 		color: $gold;
-		border-radius: 5px 0 0 5px;
+		border-radius: 0 5px 5px 0;
 		width: 82%;
    		margin-top: 0px;
 	}
 	.field-label {
 		background: $gold;
 		width: 40px;
-		border-radius: 0 5px 5px 0;
+		border-radius: 5px 0 0 5px;
 	}
 
 	.field-wrap {
@@ -129,7 +137,7 @@
 		background: $item-blue;
 		width: 82%;
 		color: $gold;
-		border-radius: 5px 0 0 5px;
+		border-radius: 0 5px 5px 0;
 	}
 
 	.field-text {

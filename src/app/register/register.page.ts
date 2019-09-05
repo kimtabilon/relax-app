@@ -12,6 +12,14 @@ import { UsernameValidator } from '../validators/username.validator';
 import { PhoneValidator } from '../validators/phone.validator';
 import { PasswordValidator } from '../validators/password.validator';
 import { CountryPhone } from './country-phone.model';
+import { OrderPipe } from 'ngx-order-pipe';
+import { IonicSelectableComponent } from 'ionic-selectable';
+import { TermPage } from '../term/term.page';
+
+class Port {
+  public id: number;
+  public name: string;
+}
 
 @Component({
   selector: 'app-register',
@@ -25,9 +33,17 @@ export class RegisterPage implements OnInit {
 
   countries: Array<CountryPhone>;
   genders: Array<string>;
-  
+
+  provinces:any = [];
+  cities:any = [];
+  barangays:any = [];
+
+  eightenyearsAgo:any = '';
+
+  signup_btn:any = 'SIGN UP';
+
   constructor(
-  	private http: HttpClient,
+    private http: HttpClient,
     private modalController: ModalController,
     private authService: AuthService,
     private navCtrl: NavController,
@@ -35,12 +51,52 @@ export class RegisterPage implements OnInit {
     private storage: Storage,
     public loading: LoadingService,
     private env: EnvService,
-    public formBuilder: FormBuilder
-  ) { }
+    public formBuilder: FormBuilder,
+    private orderPipe: OrderPipe
+  ) {
+  }
+
+  tapProvince(event){ 
+    // console.log(event.detail.value);
+    let province:any = event.value;
+    fetch('./assets/json/refcitymun.json').then(res => res.json())
+    .then(json => {
+      // console.log(json.RECORDS);
+      let records:any = json.RECORDS
+      this.cities = records.filter(item => item.provCode === province.provCode);
+      this.cities = this.orderPipe.transform(this.cities, 'provDesc');
+
+      // console.log(this.cities);
+    });
+  };
+
+  tapCity(event){ 
+    // console.log(event.detail.value);
+    let city:any = event.value;
+    fetch('./assets/json/refbrgy.json').then(res => res.json())
+    .then(json => {
+      // console.log(json.RECORDS);
+      let records:any = json.RECORDS
+      this.barangays = records.filter(item => item.citymunCode === city.citymunCode);
+      this.barangays = this.orderPipe.transform(this.barangays, 'provDesc');
+
+      // console.log(this.barangays);
+    });
+  };
+
+  tapBarangay(event){ 
+    // console.log(event.detail.value);
+  };
 
   ngOnInit() {
+    fetch('./assets/json/refprovince.json').then(res => res.json())
+    .then(json => {
+      // console.log(json.RECORDS);
+      this.provinces = this.orderPipe.transform(json.RECORDS, 'provDesc');
+    });
+
     this.countries = [
-      new CountryPhone('PH', 'Philippines')
+      new CountryPhone('PH', 'PHILIPPINES')
     ];
 
     this.genders = [
@@ -77,19 +133,32 @@ export class RegisterPage implements OnInit {
       //   Validators.pattern('^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$'),
       //   Validators.required
       // ])),
-      first_name: new FormControl('', Validators.required),
+      // first_name: new FormControl('', Validators.required),
+      first_name: new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.pattern('[a-zA-Z]+')
+      ])),
       middle_name: new FormControl(''),
-      last_name: new FormControl('', Validators.required),
+      last_name: new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.pattern('[a-zA-Z]+')
+      ])),
       birthday: new FormControl('', Validators.required),
       birthyear: new FormControl('', Validators.required),
       birthmonth: new FormControl('', Validators.required),
-      gender: new FormControl(this.genders[0], Validators.required),
+      gender: new FormControl('', Validators.required),
       country_phone: this.country_phone_group,
       street: new FormControl('', Validators.required),
+      barangay: new FormControl('', Validators.required),
       city: new FormControl('', Validators.required),
       province: new FormControl('', Validators.required),
-      country: new FormControl('', Validators.required),
-      zip: new FormControl('', Validators.required),
+      country: new FormControl('PHILIPPINES', Validators.required),
+      zip: new FormControl('', Validators.compose([
+        Validators.required,
+        Validators.maxLength(4),
+        Validators.minLength(4),
+        Validators.pattern('[0-9]+')
+      ])),
 
       email: new FormControl('', Validators.compose([
         Validators.required,
@@ -100,7 +169,7 @@ export class RegisterPage implements OnInit {
     });
   }
 
-  validation_messages = {
+  validation_messages:any = {
     // 'username': [
     //   { type: 'required', message: 'Username is required.' },
     //   { type: 'minlength', message: 'Username must be at least 5 characters long.' },
@@ -109,10 +178,12 @@ export class RegisterPage implements OnInit {
     //   { type: 'validUsername', message: 'Your username has already been taken.' }
     // ],
     'first_name': [
-      { type: 'required', message: 'First name is required.' }
+      { type: 'required', message: 'First name is required.' },
+      { type: 'pattern', message: 'Your firstname must contain only letters.' }
     ],
     'last_name': [
-      { type: 'required', message: 'Last name is required.' }
+      { type: 'required', message: 'Last name is required.' },
+      { type: 'pattern', message: 'Your lastname must contain only letters.' }
     ],
     'birthday': [
       { type: 'required', message: 'Birthday is required.' }
@@ -134,6 +205,9 @@ export class RegisterPage implements OnInit {
     'street': [
       { type: 'required', message: 'Street is required.' }
     ],
+    'barangay': [
+      { type: 'required', message: 'Barangay is required.' }
+    ],
     'city': [
       { type: 'required', message: 'City is required.' }
     ],
@@ -144,7 +218,10 @@ export class RegisterPage implements OnInit {
       { type: 'required', message: 'Country is required.' }
     ],
     'zip': [
-      { type: 'required', message: 'Zip is required.' }
+      { type: 'required', message: 'Zip is required.' },
+      { type: 'minlength', message: 'Zip must be at least 4 characters long.' },
+      { type: 'maxlength', message: 'Zip cannot be more than 4 characters long.' },
+      { type: 'pattern', message: 'Your zip must contain only numbers.' }
     ],
     'password': [
       { type: 'required', message: 'Password is required.' },
@@ -164,16 +241,18 @@ export class RegisterPage implements OnInit {
 
   onSubmit(values) {
     this.loading.present();
+    // console.log(values);
+    this.signup_btn = 'Please wait...';
     if(this.validations_form.valid) {
-      console.log(values);
       this.authService.register(
           values.first_name, 
           values.middle_name, 
           values.last_name, 
           
           values.street, 
-          values.city, 
-          values.province, 
+          values.barangay.brgyDesc, 
+          values.city.citymunDesc, 
+          values.province.provDesc, 
           values.country, 
           values.zip, 
 
@@ -191,9 +270,10 @@ export class RegisterPage implements OnInit {
           this.loading.dismiss();
           this.alertService.presentToast('You are now registered! Check your email to activate account.');
           this.navCtrl.navigateRoot('/login');
-          console.log(data);
+          this.signup_btn = 'Redirect to login...';
         },
         error => {
+          this.signup_btn = 'Try Again';
           this.loading.dismiss();
           this.alertService.presentToast('Email already exist.');
           console.log(error);
@@ -203,17 +283,63 @@ export class RegisterPage implements OnInit {
         }
       );
     } else {
+      let message:any = 'Input all required fields. ';
+      for (let key in this.validation_messages) {
+        let validations:any = this.validation_messages[key];
+        for (let index in validations) {
+          let validation:any = validations[index];
+          if(this.validations_form.get(key)!=null) {  
+            if(this.validations_form.get(key).hasError(validation.type)){
+              message += validation.message + ' ';
+            }
+          } else {
+            message += validation.message + ' ';
+          } 
+        }
+      }   
       this.loading.dismiss();
-      this.alertService.presentToast('Input all required fields');
+      this.alertService.presentToast(message);
     }
   }
 
   ionViewWillEnter() {
+    this.http.post(this.env.HERO_API + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });
+    this.http.post(this.env.API_URL + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });  
+
+    let eightenyearsAgo = function(sp){
+      let today:any = new Date();
+      let dd:any = today.getDate();
+      let mm:any = today.getMonth()+1; //As January is 0.
+      let yyyy:any = today.getFullYear()-18;
+
+      if(dd<10) dd='0'+dd;
+      if(mm<10) mm='0'+mm;
+      return (yyyy+sp+mm+sp+dd);
+    };
+    this.eightenyearsAgo = eightenyearsAgo('-');
+
     this.authService.getToken().then(() => {
       if(this.authService.isLoggedIn) {
         this.navCtrl.navigateRoot('/tabs/home');
       }
     });
+    
+  }
+
+  async terms() {
+    const modal = await this.modalController.create({
+      component: TermPage,
+      componentProps: { 
+        user: {}
+      }
+    });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        let response:any = data;
+    });
+
+    return await modal.present();
   }
 
 }

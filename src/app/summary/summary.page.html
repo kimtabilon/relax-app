@@ -29,39 +29,59 @@
   </div>  
 
   <ion-list lines="none">
-      <ion-row padding class="form-header"><ion-col class="text-center">Summary</ion-col></ion-row>
       <ion-row padding class="form-bar">
       	<ul class="progress">
-    	  <li class="progress__circle progress--active progress--done"></li>
-    	  <li class="progress__bar progress--done"></li>
-    	  <li class="progress__circle progress--active progress--done"></li>
-    	  <li class="progress__bar progress--done"></li>
-    	  <li class="progress__circle progress--active progress--done"></li>
-    	</ul>
-
+      	  <li class="progress__circle progress--active progress--done"></li>
+      	  <li class="progress__bar progress--done"></li>
+      	  <li class="progress__circle progress--active progress--done"></li>
+      	  <li class="progress__bar progress--done"></li>
+      	  <li class="progress__circle progress--active progress--done"></li>
+      	</ul>
       </ion-row>
+      <ion-row padding class="form-header"><ion-col class="text-center">Summary</ion-col></ion-row>
       <ion-row padding>
     	  <ion-grid>
-    	  	
     	  <ion-row>
-    	    <span class="label">Service Type </span>
+          <ion-col></ion-col>
+          <ion-col>
+            <ion-avatar>
+              <img src="{{service.photo}}">
+            </ion-avatar> 
+          </ion-col>
+            
+          <ion-col></ion-col>
+        </ion-row>	
+
+        <ion-row>
+          <span class="label">
+            Hero
+          </span>
+          <span class="value">
+            {{ service.provider }}
+          </span>
+        </ion-row>
+
+    	  <ion-row>
+    	    <span class="label">Service </span>
     	    <span class="value">{{ service.name }}</span>
     	  </ion-row>
 
     	  <ion-row>
-    	    <span class="label">Job Status </span>
+    	    <span class="label">Job Statuss</span>
     	    <span class="value">{{ service.status }}</span>
     	  </ion-row>
 
     	  <ion-row>
-    	    <span class="label">Service Amount </span>
+    	    <span class="label">Amount</span>
     	    <span class="value">{{ service.amount }}</span>
     	  </ion-row>
 
-    	  <ion-row>
-    	    <span class="label">Service Person </span>
-    	    <span class="value">{{ service.provider }}</span>
-    	  </ion-row>
+        <ion-row>
+          <span class="label">Payment</span>
+          <span class="value">{{ service.payment }}</span>
+        </ion-row>
+
+    	  
     	</ion-grid>
     </ion-row>
     <button class="btn btn-login" routerLink="/tabs/job" routerDirection="root" >DONE</button>

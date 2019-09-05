@@ -29,27 +29,38 @@
   </div>  
   <ion-list lines="none">
     <ion-row padding class="form-header"><ion-col class="text-center">Select Quote</ion-col></ion-row>
+    
+    <ion-item *ngFor="let quote of quotations">
+      <ion-avatar slot="start">
+        <img *ngIf="quote.hero.profile.photo!=null" src="{{img_link+quote.hero.profile.photo}}">
+        <img *ngIf="quote.hero.profile.photo==null" src="{{default_photo}}">
+      </ion-avatar>
+      <ion-label text-wrap>
+        <h2>{{quote.hero.profile.first_name}} {{quote.hero.profile.last_name}}</h2>
+        <ion-icon slot="icon-only" name="star"></ion-icon>
+        <ion-icon slot="icon-only" name="star"></ion-icon>
+        <ion-icon slot="icon-only" name="star"></ion-icon>
+        <ion-icon slot="icon-only" name="star"></ion-icon>
+        <ion-icon slot="icon-only" name="star"></ion-icon>
+        <h3>₱ {{quote.amount}}</h3>
+        <p *ngFor="let address of quote.hero.profile.addresses" class="hero-address">
+          <!-- <ion-icon name="car"></ion-icon> 5.39 mi --> 
+          <ion-icon name="pin"></ion-icon> 
+          <span *ngIf="address.street!=null">{{address.street}},&nbsp;</span> 
+          <span *ngIf="address.barangay!=null">{{address.barangay}},&nbsp;</span> 
+          <span *ngIf="address.city!=null">{{address.city}},&nbsp;</span> 
+          <span *ngIf="address.province!=null">{{address.province}},&nbsp;</span> 
+          <span *ngIf="address.country!=null">{{address.country}}&nbsp;</span> 
+          <span *ngIf="address.zip!=null">{{address.zip}}</span><br>
+        </p>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button (click)="tapHero(quote)">
+          <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
 
-    <div *ngFor="let quote of quotations">
-      <ion-row padding class="hero-wrap" (click)="tapHero(quote)">
-    	  <span class="hero-name">{{quote.hero.profile.first_name}} {{quote.hero.profile.last_name}}</span><span class="service-amount">{{quote.amount}}</span>
-      </ion-row>
-      <!-- <ion-row padding class="star-wrap">
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star-half"></ion-icon> 105 Rating
-      </ion-row> -->
-      <ion-row padding class="location-wrap" *ngFor="let address of quote.hero.profile.addresses">
-      	<!-- <ion-icon name="car"></ion-icon> 5.39 mi <ion-icon name="pin"> -->
-        <ion-icon name="pin"></ion-icon> 
-        <span *ngIf="address.street!=null">{{address.street}},&nbsp;</span> 
-        <span *ngIf="address.city!=null">{{address.city}},&nbsp;</span> 
-        <span *ngIf="address.province!=null">{{address.province}},&nbsp;</span> 
-        <span *ngIf="address.country!=null">{{address.country}}&nbsp;</span> 
-        <span *ngIf="address.zip!=null">{{address.zip}}</span><br>
-      </ion-row>
-    </div>  
+     
   </ion-list>  
 </ion-content>

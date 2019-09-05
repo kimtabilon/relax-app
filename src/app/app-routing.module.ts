@@ -16,7 +16,12 @@ const routes: Routes = [
   { path: 'help', loadChildren: './help/help.module#HelpPageModule' },
   { path: 'profile', loadChildren: './profile/profile.module#ProfilePageModule' },
   { path: 'jobview', loadChildren: './jobview/jobview.module#JobviewPageModule' },
-  { path: 'quotation', loadChildren: './quotation/quotation.module#QuotationPageModule' }
+  { path: 'quotation', loadChildren: './quotation/quotation.module#QuotationPageModule' },
+  { path: 'loginreset', loadChildren: './loginreset/loginreset.module#LoginresetPageModule' },
+  { path: 'payment', loadChildren: './payment/payment.module#PaymentPageModule' },
+  { path: 'profileview', loadChildren: './profileview/profileview.module#ProfileviewPageModule' },
+  { path: 'term', loadChildren: './term/term.module#TermPageModule' },
+  { path: 'resendemail', loadChildren: './resendemail/resendemail.module#ResendemailPageModule' }
 ];
 @NgModule({
   imports: [

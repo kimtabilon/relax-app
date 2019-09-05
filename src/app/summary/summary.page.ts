@@ -74,6 +74,7 @@ export class SummaryPage implements OnInit {
 
     this.activatedRoute.queryParams.subscribe((res)=>{
         this.service = JSON.parse(res.service);
+        console.log(this.service);
     });
     this.loading.dismiss();
   }

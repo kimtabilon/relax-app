@@ -124,7 +124,7 @@
 		background: $item-blue;
 		width: 82%;
 		color: $gold;
-		border-radius: 5px 0 0 5px;
+		border-radius: 0 5px 5px 0;
 	}
 
 	.field-text {
@@ -159,10 +159,16 @@
   	}
 
 	.btn-login {
-  		border: 2px solid $gold;
-  		background: $gold;
-  		color: $brown;
-  	}
+		border: 2px solid $gold;
+		background: $gold;
+		color: $brown;
+	}
+
+	.btn-signup {
+    background: none;
+    border: 2px solid $gold;
+    color: #eee;
+  }
 
 	.progress {
 	  display: inline-flex;

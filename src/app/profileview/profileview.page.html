@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Hero Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ion-card>
+    <img src="{{photo}}">
+    <ion-card-header>
+      <ion-card-subtitle>{{ user.profile.gender }}</ion-card-subtitle>
+      <ion-card-title>{{ name }}</ion-card-title>
+
+    </ion-card-header>
+    <ion-card-content>
+      Ratings: 
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <br>
+      <ion-icon slot="icon-only" name="pin"></ion-icon> {{ address }} <br>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-item-divider>
+    <ion-label>
+      REVIEWS
+    </ion-label>
+  </ion-item-divider>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>August 28, 2019</ion-card-subtitle>
+      <ion-card-title>Client</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star"></ion-icon><br>
+      Keep close to Nature's heart... and break clear away, once in awhile,
+      and climb a mountain or spend a week in the woods. Wash your spirit clean.
+    </ion-card-content>
+    </ion-card>
+</ion-content>

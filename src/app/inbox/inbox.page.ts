@@ -131,8 +131,8 @@ export class InboxPage implements OnInit {
         this.loading.dismiss();
         
         let alert = await this.alertCtrl.create({
-          header: '',
-          message: 'Remove Notification',
+          header: 'Remove Notification',
+          message: 'Tap continue to remove in Inbox',
           buttons: [
             {
               text: 'Cancel',
@@ -142,7 +142,7 @@ export class InboxPage implements OnInit {
                 
               }
             }, {
-              text: 'Remove',
+              text: 'Continue',
               handler: () => {
                 this.loading.present();
                 this.http.post(this.env.HERO_API + 'inboxes/hide',{id: noti.id})

@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular';
 import { tap } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
 import { EnvService } from './env.service';
@@ -25,10 +25,12 @@ export class AuthService {
     private navCtrl: NavController,
     private alertService: AlertService,
     private appVersion: AppVersion,
-    private market: Market
+    private market: Market,
+    public alertController: AlertController,
   ) { }
 
-  validateApp(email, password) {
+  async validateApp(email, password) {
+
     this.http.post(this.env.HERO_API + 'app/validate',
       {key: this.env.APP_ID}
     ).subscribe(
@@ -38,21 +40,18 @@ export class AuthService {
 
           this.appVersion.getVersionNumber().then(value => {
             if(value != app.build) {
-              
+              // this.alertService.presentToast("New update available."); 
+
               this.http.post(this.env.HERO_API + 'customer/login',{email: email, password: password})
               .subscribe(data => {
-                  this.storage.set('hero', data);
+                  this.storage.set('customer', data);
               },error => { console.log(error); });
 
-              this.appVersion.getPackageName().then(value => {
-                this.market.open(value);
-              }).catch(err => {
-                alert(err);
-              });
+              this.alertUpdate(app.build);
             }
             
           }).catch(err => {
-            alert(err);
+            // alert(err);
           });
            
           this.storage.set('app', response);
@@ -67,6 +66,29 @@ export class AuthService {
           // this.navCtrl.navigateRoot('/tabs/service');
         }
       );
+  }
+
+  async alertUpdate(version) {
+    const alert = await this.alertController.create({
+      header: 'New Update Available',
+      message: 'Version '+version,
+      buttons: [
+        {
+          text: 'Update',
+          handler: () => {
+
+            this.appVersion.getPackageName().then(value => {
+              this.market.open(value);
+            }).catch(err => {
+              // alert(err);
+            });
+
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   login(email: String, password: String) {
@@ -98,7 +120,8 @@ export class AuthService {
   		last_name: String, 
   		 
   		street: String, 
-      	city: String, 
+      barangay: String, 
+      city: String, 
   		province: String, 
   		country: String, 
   		zip: String, 
@@ -121,7 +144,8 @@ export class AuthService {
       	last_name: last_name, 
       	 
       	street: street, 
-      	city: city, 
+      	barangay: barangay, 
+        city: city, 
       	province: province, 
       	country: country, 
       	zip: zip, 
@@ -129,6 +153,7 @@ export class AuthService {
       	birthmonth: birthmonth, 
       	birthday: birthday, 
       	birthyear: birthyear, 
+        gender: gender, 
       	phone_number: phone_number, 
 
       	email: email,

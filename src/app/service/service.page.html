@@ -31,7 +31,7 @@
       <ion-item *ngFor="let service of services" (click)="tapService(service)" detail="false">
         <ion-icon slot="start" name="{{service.icon}}" class="with-border"></ion-icon>
         <ion-label text-wrap><strong>{{service.name}}</strong><br><span class="info">{{service.description}}</span></ion-label>
-        <ion-icon *ngIf="service.options.length && service.heroes.length" slot="end" name="arrow-dropright-circle" class="arrow"></ion-icon>
+        <ion-icon *ngIf="service.options.length" slot="end" name="arrow-dropright-circle" class="arrow"></ion-icon>
       </ion-item> 
     </ion-list>
   

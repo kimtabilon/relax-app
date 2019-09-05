@@ -26,6 +26,11 @@
 		margin-top: -5px;
 	}
 
+	.hero-address {
+		font-size: 8pt;
+		line-height: 130%;
+	}
+
 	.signout-btn {
 		padding: 3px 8px;
 		border-radius: 10px;
@@ -125,7 +130,7 @@
 
   ion-item {
       --background: linear-gradient(to right, rgb(35,59,85) 0%,rgb(49,78,112) 100%);
-      --border-radius: 50px 50px 10px 50px;
+      // --border-radius: 50px 50px 10px 50px;
       color: $gold;
       margin-bottom: 5px;
 

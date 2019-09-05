@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ModalController, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { Profile } from 'src/app/models/profile';
@@ -9,6 +9,7 @@ import { Storage } from '@ionic/storage';
 import { LoadingService } from 'src/app/services/loading.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HeroPage } from '../hero/hero.page';
 
 @Component({
   selector: 'app-jobview',
@@ -36,10 +37,14 @@ export class JobviewPage implements OnInit {
   attributes:any;
   form:any;
   formExist:any = false;
+
   enableCancel:any = false;
+  enableNoshow:any = false;
+  
   status:any = '';
   photo:any = '';
   customer_info:any = [];
+  customer_city:any;
 
   constructor(
   	private menu: MenuController, 
@@ -51,7 +56,9 @@ export class JobviewPage implements OnInit {
     public activatedRoute : ActivatedRoute,
     public loading: LoadingService,
     private http: HttpClient,
-    private env: EnvService
+    private env: EnvService,
+    public modalController: ModalController,
+    public alertCtrl: AlertController
   ) {
   	this.menu.enable(true);	
   }
@@ -71,6 +78,12 @@ export class JobviewPage implements OnInit {
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;
+
+      let address:any = this.profile.addresses[0];
+
+      if(address.city) { 
+        this.customer_city = address.city;
+      }
 
       if(this.profile.photo!==null) {
         this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
@@ -104,11 +117,44 @@ export class JobviewPage implements OnInit {
               this.heroExist = false;
             }
 
-            if(this.job.status == 'Pending' || this.job.status == 'Completed') {
+            if(this.job.status == 'Cancelled' || this.job.status == 'Completed') {
               this.enableCancel = false;
             } else {
               this.enableCancel = true;
             }
+
+            /*NOSHOW*/
+            let curday = function(sp){
+              let today:any = new Date();
+              let dd:any = today.getDate();
+              let mm:any = today.getMonth()+1; //As January is 0.
+              let yyyy:any = today.getFullYear();
+
+              if(dd<10) dd='0'+dd;
+              if(mm<10) mm='0'+mm;
+              return (yyyy+sp+mm+sp+dd);
+            };
+
+            let now:any = new Date();
+            now.setMinutes(now.getMinutes() + 30); 
+
+            let curtime:any = new Date(now);
+
+            let schedtime:any = new Date(this.job.schedule_date+ ' ' +this.job.schedule_time);
+
+            let curdate:any = new Date(curday('-')+' '+'00:00');
+            let scheddate:any = new Date(this.job.schedule_date);
+
+            if(curdate >= scheddate && curtime >= schedtime) {
+              this.enableNoshow = true;
+            } else {
+              this.enableNoshow = false;
+            }
+
+            if(this.job.status == 'No Show : Client' || this.job.status == 'No Show : Hero' || this.job.status == 'Cancelled' || this.job.status == 'Denied' || this.job.status == 'Completed') {
+              this.enableNoshow = false;
+            }
+
         },error => { console.log(error); });    
     });
 
@@ -124,16 +170,151 @@ export class JobviewPage implements OnInit {
     this.loading.dismiss();  
   }
 
-  tapCancel() {
+  async tapCancel() {
+
+    let alert = await this.alertCtrl.create({
+      header: 'Cancel Job?',
+      message: 'By tapping continue, the job will tag as Cancelled',
+      buttons: [
+        {
+          text: 'Back',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Continue',
+          handler: () => {
+            this.loading.present();
+            this.http.post(this.env.HERO_API + 'jobs/cancel',{id: this.job.id})
+              .subscribe(data => {
+              },error => { 
+                this.alertService.presentToast("Server no response");
+                console.log(error);
+              },() => { this.navCtrl.navigateRoot('/tabs/job'); }
+            ); 
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async tapNoShow() {
+
+    let alert = await this.alertCtrl.create({
+      header: 'Hero not showing?',
+      message: 'By tapping continue, the job will tag as No Show.',
+      buttons: [
+        {
+          text: 'Back',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Continue',
+          handler: () => {
+            this.loading.present();
+            this.http.post(this.env.HERO_API + 'jobs/noshowhero',{id: this.job.id})
+              .subscribe(data => {
+              },error => { 
+                this.alertService.presentToast("Server no response");
+                console.log(error);
+              },() => { this.navCtrl.navigateRoot('/tabs/job'); }
+            ); 
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async findHero() {
     this.loading.present();
-
-    /*Cancel Jobs*/
-    this.http.post(this.env.HERO_API + 'jobs/cancel',{id: this.job.id})
+    console.log({app_key: this.env.APP_ID, id: this.job.form.option.id, schedule_date: this.job.schedule_date, schedule_time: this.job.schedule_time, customer_city: this.customer_city });
+    
+    this.http.post(this.env.HERO_API + 'options/heroes',{app_key: this.env.APP_ID, id: this.job.form.option.id, schedule_date: this.job.schedule_date, schedule_time: this.job.schedule_time, customer_city: this.customer_city })
       .subscribe(data => {
-      },error => { this.alertService.presentToast("Server no response");
-    },() => { this.navCtrl.navigateRoot('/tabs/job'); });  
+        let response:any = data; 
+        // console.log(response);
 
-    this.loading.dismiss();
+        let heroes:any = response.data.heroes;
+        if(heroes.length) { 
+          this.showHeroes(heroes);
+        } else {
+          this.alertService.presentToast("No heroes found. Change schedule."); 
+        }
+        
+        this.loading.dismiss();
+      },error => { 
+          console.log(error);  
+          this.loading.dismiss();
+      }
+    );
+  }
+
+  async showHeroes(heroes) {
+    this.job.form.option.heroes = heroes;
+
+    // console.log(
+    //   { 
+    //     input: {
+    //       option_id : this.job.form.option.id,
+    //       form_id : this.job.form.id,
+    //       payper : this.job.amount,
+    //       schedule_date: this.job.schedule_date
+    //     },
+    //     option: this.job.form.option,
+    //     job: { 
+    //       app_key: this.env.APP_ID, 
+    //       customer_id: this.user.id, 
+    //       form_id: this.form.id, 
+    //       form_value: JSON.stringify(this.attributes), 
+    //       customer_info: JSON.stringify(this.customer_info), 
+    //       schedule_date: this.job.schedule_date, 
+    //       schedule_time: this.job.schedule_time, 
+    //       status: 'For Quotation'
+    //     }
+    //   }
+    // );
+
+    const modal = await this.modalController.create({
+      component: HeroPage,
+      componentProps: { 
+        input: {
+          option_id : this.job.form.option.id,
+          form_id : this.job.form.id,
+          payper : this.job.amount,
+          schedule_date: this.job.schedule_date,
+          reapply: true
+        },
+        option: this.job.form.option,
+        job: { 
+          app_key: this.env.APP_ID, 
+          customer_id: this.user.id, 
+          form_id: this.form.id, 
+          form_value: JSON.stringify(this.attributes), 
+          customer_info: JSON.stringify(this.customer_info), 
+          schedule_date: this.job.schedule_date, 
+          schedule_time: this.job.schedule_time, 
+          status: 'For Quotation',
+          id: this.job.id
+        }
+      }
+    });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        // const user = data['data']; // Here's your selected user!
+        let response:any = data;
+        // this.account.settings.block_dates = response.data.block_dates;
+        // this.saveSettings();
+    });
+
+    return await modal.present();
   }
 
   logout() {

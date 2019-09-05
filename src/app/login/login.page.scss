@@ -37,6 +37,17 @@
       --background: none;
     }
 
+    .forget-pass {
+      color: #fff;
+      padding: 10px 25px;
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .no-margin-top {
+      margin-top: -10px;
+    }
+
     .btn-signup {
       background: none;
       border: 2px solid $gold;

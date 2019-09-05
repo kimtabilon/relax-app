@@ -62,11 +62,25 @@ export class HomePage implements OnInit {
 
   ionViewWillEnter() {
     this.loading.present(); 
+
+    this.http.post(this.env.HERO_API + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });
+    this.http.post(this.env.API_URL + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });  
+
     
     this.storage.get('customer').then((val) => {
       // console.log(val.data);
       this.user = val.data;
       this.profile = val.data.profile;
+
+      this.http.post(this.env.HERO_API + 'customer/login',{email: this.user.email, password:  this.user.password})
+      .subscribe(data => {
+          let response:any = data;
+          this.storage.set('customer', response);
+          this.user = response.data;
+      },error => { 
+        this.logout();
+        console.log(error); 
+      });
 
       if(this.profile.photo!==null) {
         this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;

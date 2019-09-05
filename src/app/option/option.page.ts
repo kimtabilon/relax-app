@@ -84,8 +84,8 @@ export class OptionPage implements OnInit {
 
       this.http.post(this.env.HERO_API + 'services/byID',{app_key: this.env.APP_ID, id: this.service_id })
         .subscribe(data => {
-          this.service = data;
-          this.service = this.service.data;
+          let response:any = data;
+          this.service = response.data;
           this.options = this.service.options;
           this.title = this.service.name;
           this.payType = this.service.pay_type;
@@ -98,7 +98,7 @@ export class OptionPage implements OnInit {
 
   tapOption(option) {
     this.loading.present();
-    if(option.form !== null) {
+    if(option.form !== null && option.heroes.length) {
       this.router.navigate(['/tabs/form'],{
         queryParams: {
             option_id : option.id,
@@ -108,13 +108,14 @@ export class OptionPage implements OnInit {
         },
       });
     } else {
-      // this.alertService.presentToast("No Form Available");
+      this.alertService.presentToast("No Heroes Available or missing form for this service.");
     }   
     this.loading.dismiss();
   }
 
   tapBack() {
     this.loading.present();
+    this.options = [];
     this.router.navigate(['/tabs/service'],{
       queryParams: {
           category_id : this.category_id

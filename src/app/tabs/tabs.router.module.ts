@@ -134,6 +134,15 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'payment',
+        children: [
+          {
+            path: '',
+            loadChildren: '../payment/payment.module#PaymentPageModule'
+          }
+        ]
+      },
+      {
         path: '',
         redirectTo: '/login',
         pathMatch: 'full'

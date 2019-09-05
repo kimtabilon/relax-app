@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ModalController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { User } from 'src/app/models/user';
 import { Profile } from 'src/app/models/profile';
@@ -9,6 +9,7 @@ import { Storage } from '@ionic/storage';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoadingService } from 'src/app/services/loading.service';
+import { HeroPage } from '../hero/hero.page';
 
 @Component({
   selector: 'app-form',
@@ -37,6 +38,9 @@ export class FormPage implements OnInit {
     contact: ''
   }
 
+  customer_city:any;
+  customer_province:any;
+
   schedule_date:any = '';
   schedule_time:any = '';
 
@@ -57,6 +61,9 @@ export class FormPage implements OnInit {
 
   current_date:any = '';
   next_year:any = '';
+  current_time:any = '';
+
+  button_text:any = 'Loading...';
 
   constructor(
     private menu: MenuController, 
@@ -68,7 +75,8 @@ export class FormPage implements OnInit {
     public loading: LoadingService,
     public activatedRoute : ActivatedRoute,
     private http: HttpClient,
-    private env: EnvService
+    private env: EnvService,
+    public modalController: ModalController,
   ) {
     this.menu.enable(true);  
   }
@@ -108,6 +116,7 @@ export class FormPage implements OnInit {
       if(mm<10) mm='0'+mm;
       return (yyyy+sp+mm+sp+dd);
     };
+
     this.current_date = curday('-');
     this.next_year = nextYear('-');
 
@@ -129,8 +138,14 @@ export class FormPage implements OnInit {
       let customer_name:any = '';
 
       if(address.street) { customer_address += address.street + ', '; }
-      if(address.city) { customer_address += address.city + ', '; }
-      if(address.province) { customer_address += address.province + ', '; }
+      if(address.city) { 
+        customer_address += address.city + ', '; 
+        this.customer_city = address.city;
+      }
+      if(address.province) { 
+        customer_address += address.province + ', '; 
+        this.customer_province = address.province;
+      }
       if(address.country) { customer_address += address.country + ' '; }
       if(address.zip) { customer_address += address.zip; }
 
@@ -144,7 +159,7 @@ export class FormPage implements OnInit {
       this.customer_info = {
         name: customer_name,
         address: customer_address,
-        contact: customer_contact
+        // contact: customer_contact
       }
 
     });
@@ -164,17 +179,28 @@ export class FormPage implements OnInit {
             this.title = this.option.name;
             this.quote_enable = this.option.enable_quote;
             this.attributes = JSON.parse(this.form.attributes);  
-          }
-          
-        },error => { console.log(error);  
-      });
-    });
+            this.payper = this.option.min;
 
-    this.loading.dismiss();
+            if(this.quote_enable == 'No') {
+              this.button_text = 'Find Hero';
+            } else {
+              this.button_text = 'Request Quote';
+            }
+          }
+          this.loading.dismiss();
+          
+        },error => { 
+          console.log(error); 
+          this.loading.dismiss(); 
+        }
+      );
+    });
 
   }
 
   tapBack() {
+    this.form = [];
+    this.customer_info = [];
     this.router.navigate(['/tabs/option'],{
       queryParams: {
         category_id : this.category_id,
@@ -183,23 +209,61 @@ export class FormPage implements OnInit {
     });   
   }
 
-  tapNext() {
+  requestQuote() {
     this.loading.present();
-    if(this.schedule_date != '' && this.schedule_time!='') {
-      this.http.post(this.env.HERO_API + 'services/heroes',{app_key: this.env.APP_ID, id: this.service_id, schedule_date: this.schedule_date })
+
+    let error:any = 0;
+    let message:any = '';
+
+    if(this.schedule_date == '' || this.schedule_time=='') {
+      error++;
+      message+= "Required Schedule Date & Time. ";
+    }
+
+    // console.log(this.attributes);
+
+    this.attributes.forEach((a) => {   
+      a.fields.forEach((f) => {   
+          if(f.required) {
+            if(f.input==null) {
+              error++;
+              message+= 'Required field '+ f.label + '. ';
+            }
+          }
+      });
+    });
+
+    if(error == 0) {
+      this.button_text = 'Searching for Hero...';
+      this.http.post(this.env.HERO_API + 'options/heroes',
+        {
+           app_key: this.env.APP_ID, 
+           id: this.option.id, 
+           schedule_date: this.schedule_date, 
+           schedule_time: this.schedule_time, 
+           customer_city: this.customer_city,
+           customer_province: this.customer_province,
+           hours:0, 
+        })
         .subscribe(data => {
           let response:any = data;
           this.heroes = response.data.heroes;
+          
           if(this.heroes.length) {
+             this.button_text = 'Sending Job to Available Heroes...';
              this.http.post(this.env.HERO_API + 'jobs/create',
                 { app_key: this.env.APP_ID, 
                   customer_id: this.user.id, 
+                  hero_id: '', 
+                  amount: '', 
                   form_id: this.form.id, 
                   form_value: JSON.stringify(this.attributes), 
                   customer_info: JSON.stringify(this.customer_info), 
                   schedule_date: this.schedule_date, 
                   schedule_time: this.schedule_time, 
-                  status: 'For Quotation'
+                  status: 'For Quotation',
+                  customer_city: this.customer_city,
+                  customer_province: this.customer_province
                 }
               ).subscribe(
                   data => {
@@ -210,47 +274,191 @@ export class FormPage implements OnInit {
                     this.alertService.presentToast("Server not responding!"); 
                   },
                   () => {
-                    if(this.quote_enable=='Yes') {
-                      // this.alertService.presentToast("Please wait for quotation!"); 
-                      this.router.navigate(['/tabs/summary'],{
+                      this.alertService.presentToast("Open Job sent to all heroes. Wait for quotation."); 
+                      this.router.navigate(['/tabs/job'],{
                         queryParams: {
-                          service : JSON.stringify({ 
-                            name: this.title,
-                            amount: '0',
-                            provider: '',
-                            status: 'For Quotation'
-                          })
+                          // service : JSON.stringify({ 
+                          //   name: this.title,
+                          //   amount: '0',
+                          //   provider: '',
+                          //   status: 'For Quotation'
+                          // })
                         },
                       });
-                    } else {
-                      if(this.payper == null) {
-                        this.payper = 1;
-                      }
-                      this.router.navigate(['/tabs/hero'],{
-                        queryParams: {
-                            job_id : this.job.data.id,
-                            category_id : this.category_id,
-                            service_id : this.service_id,
-                            option_id : this.option_id,
-                            form_id : this.form.id,
-                            payper : this.payper,
-                            schedule_date: this.schedule_date
-                        },
-                      });
-                    }
+                    
                   }
                 );
           } else {
+            this.button_text = 'Try Again';
             this.alertService.presentToast("No heroes found. Change schedule date."); 
           }
         },error => { 
           console.log(error);  
       });
     } else {
-      this.alertService.presentToast("Required Schedule Date & Time."); 
+      this.alertService.presentToast(message); 
+      this.loading.dismiss();
     }
-    
-    this.loading.dismiss();
+  }
+
+  async findHero() {
+    this.loading.present();
+
+    let error:any = 0;
+    let message:any = '';
+
+    let selected_date:any = this.schedule_date.substring(0,10);
+    let current_date:any = this.current_date;
+
+    if(selected_date == current_date) {
+      let selected_time:any = this.currentTime(new Date(this.schedule_time));
+      let current_time:any = this.timePlusTwoHours(new Date);
+
+      selected_time = new Date(selected_date+ ' ' +selected_time);
+      current_time = new Date(selected_date+ ' ' +current_time);
+
+      if(selected_time < current_time) {
+        error++;
+        message+= "Schedule time must be 2 hours ahead if you scheduled today. ";
+      }
+    }
+
+    if(this.schedule_date == '' || this.schedule_time=='') {
+      error++;
+      message+= "Required Schedule Date & Time. ";
+    }
+
+    if( this.payper > (this.option.max * 1 ) ) {
+      error++;
+      message+= "Maximum of "+this.option.max+" hour/s. ";
+    }
+
+    if( this.payper < (this.option.min * 1 ) ) {
+      error++;
+      message+= "Minimum of "+this.option.min+" hour/s. ";
+    }
+
+    if( this.payper == '' || this.payper == null || this.payper == 0  ) {
+      error++;
+      message+= "Number of hours is required. ";
+    }
+
+    // console.log(this.attributes);
+
+    this.attributes.forEach((a) => {   
+      a.fields.forEach((f) => {   
+          if(f.required) {
+            if(f.input==null) {
+              error++;
+              message+= 'Required field '+ f.label + '. ';
+            }
+          }
+      });
+    });
+
+    if(error == 0) {
+      console.log({
+          app_key: this.env.APP_ID, 
+          id: this.option.id, 
+          schedule_date: this.schedule_date, 
+          schedule_time: this.schedule_time, 
+          customer_city: this.customer_city,
+          customer_province: this.customer_province,
+          hours: this.payper,  
+        });
+      this.button_text = 'Searching for Hero...';
+      this.http.post(this.env.HERO_API + 'options/heroes',
+        {
+          app_key: this.env.APP_ID, 
+          id: this.option.id, 
+          schedule_date: this.schedule_date, 
+          schedule_time: this.schedule_time, 
+          customer_city: this.customer_city,
+          customer_province: this.customer_province,
+          hours: this.payper,  
+        })
+        .subscribe(data => {
+          let response:any = data; 
+          let heroes:any = response.data.heroes;
+          if(heroes.length) { 
+            this.showHeroes(heroes);
+            this.button_text = 'Find Hero';
+          } else {
+            this.button_text = 'Try Again';
+            this.alertService.presentToast("No heroes found. Change schedule."); 
+          }
+          
+          this.loading.dismiss();
+        },error => { 
+            console.log(error);  
+            this.loading.dismiss();
+        }
+      );
+    } else {
+      this.alertService.presentToast(message); 
+      this.loading.dismiss();
+    }
+  }
+
+  async showHeroes(heroes) {
+    this.option.heroes = heroes;
+
+    const modal = await this.modalController.create({
+      component: HeroPage,
+      componentProps: { 
+        input: {
+          category_id : this.category_id,
+          service_id : this.service_id,
+          option_id : this.option_id,
+          form_id : this.form.id,
+          payper : this.payper,
+          schedule_date: this.schedule_date,
+          reapply: false
+        },
+        option: this.option,
+        job: { 
+          app_key: this.env.APP_ID, 
+          customer_id: this.user.id, 
+          form_id: this.form.id, 
+          form_value: JSON.stringify(this.attributes), 
+          customer_info: JSON.stringify(this.customer_info), 
+          schedule_date: this.schedule_date, 
+          schedule_time: this.schedule_time, 
+          status: 'For Quotation',
+          customer_city: this.customer_city,
+          customer_province: this.customer_province
+        }
+      }
+    });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        let response:any = data;
+    });
+
+    return await modal.present();
+  }
+
+  currentTime(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+  }
+
+  timePlusTwoHours(date) {
+    var hours = date.getHours()+2;
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
   }
 
   logout() {

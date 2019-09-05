@@ -1,66 +1,46 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="primary">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Available Heroes</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-<ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content
-      pullingIcon="arrow-dropdown"
-      pullingText="Pull to refresh"
-      refreshingSpinner="circles"
-      refreshingText="Refreshing...">
-    </ion-refresher-content>
-  </ion-refresher>
-  <div class="body">
-    <ion-row class="text-center">
-      <ion-col>
-        <img src="../../assets/img/header-logo.png" class="logo">
-        <button class="signout-btn" (click)="logout()">Signout</button>
-      </ion-col>
-    </ion-row>
-    <ion-row class="user">
-      <ion-col col-12>
-        <img class="img" src="{{photo}}"><br>
-        <span class="label">Welcome Back</span><br>
-        <span class="name" *ngIf="user != undefined">{{ profile["first_name"]  }}</span><br>
-      </ion-col>
-    </ion-row>
-
-    <span class="service-label" (click)="tapBack()">
-      <ion-icon slot="start" name="arrow-back"></ion-icon> {{title}}
-    </span>
-  </div>  
-  <ion-list lines="none">
-    <ion-row padding class="form-header"><ion-col class="text-center">Select Provider</ion-col></ion-row>
-    <ion-row padding class="form-bar">
-    	<ul class="progress">
-    	  <li class="progress__circle progress--active progress--done"></li>
-    	  <li class="progress__bar progress--done"></li>
-    	  <li class="progress__circle progress--active progress--done"></li>
-    	  <li class="progress__bar"></li>
-    	  <li class="progress__circle"></li>
-    	</ul>
-
-    </ion-row>
-
-    <div *ngFor="let hero of heroes">
-      <ion-row padding class="hero-wrap" (click)="tapHero(hero)">
-    	  <span class="hero-name">{{hero.profile.first_name}} {{hero.profile.last_name}}</span>
-        <span class="service-amount">{{ (hero.pivot.pay_per*1)*(payper) }}</span>
-      </ion-row>
-      <!-- <ion-row padding class="star-wrap">
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star"></ion-icon>
-      	<ion-icon name="star-half"></ion-icon> 105 Rating
-      </ion-row> -->
-      <ion-row padding class="location-wrap" *ngFor="let address of hero.profile.addresses">
-      	<!-- <ion-icon name="car"></ion-icon> 5.39 mi --> 
-        <ion-icon name="pin"></ion-icon> 
-        <span *ngIf="address.street!=null">{{address.street}},&nbsp;</span> 
-        <span *ngIf="address.city!=null">{{address.city}},&nbsp;</span> 
-        <span *ngIf="address.province!=null">{{address.province}},&nbsp;</span> 
-        <span *ngIf="address.country!=null">{{address.country}}&nbsp;</span> 
-        <span *ngIf="address.zip!=null">{{address.zip}}</span><br>
-      </ion-row>
-    </div>  
-  </ion-list>
+<ion-content fullscreen>
+  <ion-list lines="full">
+    <ion-item *ngFor="let hero of heroes">
+        <ion-avatar slot="start" (click)="view(hero);">
+          <img *ngIf="hero.profile.photo!=null" src="{{img_link+hero.profile.photo}}">
+          <img *ngIf="hero.profile.photo==null" src="{{default_photo}}">
+        </ion-avatar>
+        <ion-label>
+          <h2>{{hero.profile.first_name}} {{hero.profile.last_name}}</h2>
+          <ion-icon slot="icon-only" name="star"></ion-icon>
+          <ion-icon slot="icon-only" name="star"></ion-icon>
+          <ion-icon slot="icon-only" name="star"></ion-icon>
+          <ion-icon slot="icon-only" name="star"></ion-icon>
+          <ion-icon slot="icon-only" name="star"></ion-icon>
+          <h3>₱ {{ (hero.pivot.pay_per*1)*(input.payper) }}</h3>
+          <p *ngFor="let address of hero.profile.addresses" class="hero-address">
+            <!-- <ion-icon name="car"></ion-icon> 5.39 mi --> 
+            <ion-icon name="pin"></ion-icon> 
+            <span *ngIf="address.street!=null">{{address.street}},&nbsp;</span> 
+            <span *ngIf="address.barangay!=null">{{address.barangay}},&nbsp;</span> 
+            <span *ngIf="address.city!=null">{{address.city}},&nbsp;</span> 
+            <span *ngIf="address.province!=null">{{address.province}},&nbsp;</span> 
+            <span *ngIf="address.country!=null">{{address.country}}&nbsp;</span> 
+            <span *ngIf="address.zip!=null">{{address.zip}}</span><br>
+          </p>
+        </ion-label>
+        <ion-buttons slot="end">
+          <ion-button (click)="selectHero(hero)">
+            <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </ion-list>  
 </ion-content>
+

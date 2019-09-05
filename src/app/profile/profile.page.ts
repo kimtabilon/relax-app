@@ -44,6 +44,7 @@ export class ProfilePage implements OnInit {
     id: '',
     profile_id: '',
     street: '',
+    barangay: '',
     city: '',
     province: '',
     country: '',
@@ -107,6 +108,16 @@ export class ProfilePage implements OnInit {
       this.user = val.data;
       this.profile = val.data.profile;
 
+      this.http.post(this.env.HERO_API + 'customer/login',{email: this.user.email, password:  this.user.password})
+      .subscribe(data => {
+          let response:any = data;
+          this.storage.set('customer', response);
+          this.user = response.data;
+      },error => { 
+        this.logout();
+        console.log(error); 
+      });
+
       this.authService.validateApp(this.user.email,this.user.password);
 
       if(this.profile.addresses.length) {
@@ -116,6 +127,7 @@ export class ProfilePage implements OnInit {
           id: '',
           profile_id: this.profile.id,
           street: '',
+          barangay: '',
           city: '',
           province: '',
           country: '',
@@ -169,15 +181,20 @@ export class ProfilePage implements OnInit {
 
   tapUpdate() {
     this.loading.present();
-
-    /*Confirm Jobs*/
-    this.http.post(this.env.API_URL + 'profile/modify',{ user: this.user })
+    
+    this.http.post(this.env.API_URL + 'customer/modify',{ customer: this.user, address: this.address, contact: this.contact })
       .subscribe(data => { 
         this.storage.set('customer', data);
-      },error => { this.alertService.presentToast("Server not responding!");
-    },() => { this.alertService.presentToast("Profile updated!"); });  
-
-    this.loading.dismiss();
+      },
+      error => { 
+        this.alertService.presentToast("Server not responding!");
+        console.log(error);
+        this.loading.dismiss();
+      },
+      () => { 
+        this.alertService.presentToast("Account Saved"); 
+        this.loading.dismiss();
+    });  
   }
 
   tapUpdateAddr() {
