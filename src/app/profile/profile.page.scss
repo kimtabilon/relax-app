@@ -92,9 +92,9 @@
 		line-height: 30px;
 		margin-left: 10px;
 		border-radius: 0 20px 0 0;
-		background: $gold;
+		background: $item-blue;
 		padding: 10px 15px 10px 10px;
-		color: $brown;
+		color: $gold;
 		font-size: 9pt;
 	}
 
@@ -108,6 +108,21 @@
 		background: linear-gradient(to bottom, $bg-blue 0%,$gradient-blue 100%);
 		border-top: 1px dashed $gold;
 		min-height: 80%;
+	}
+
+	ion-list {
+		ion-item {
+			--background: $item-blue;
+			background: $item-blue;
+			--color: $gold;
+			color: $gold;
+
+			
+		}
+		ion-item.no-background {
+			--background: none;
+			background: none;
+		}
 	}
 
   .field {

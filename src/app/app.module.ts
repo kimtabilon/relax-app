@@ -22,6 +22,8 @@ import { Market } from '@ionic-native/market/ngx';
 import { OrderModule } from 'ngx-order-pipe';
 
 import {HeroPageModule} from './hero/hero.module';
+import {ChatPageModule} from './chat/chat.module';
+import {ReviewPageModule} from './review/review.module';
 import {ProfileviewPageModule} from './profileview/profileview.module';
 import {TermPageModule} from './term/term.module';
 
@@ -38,6 +40,8 @@ import { IonicSelectableModule } from 'ionic-selectable';
   	HttpClientModule,
   	IonicStorageModule.forRoot(),
     HeroPageModule,
+    ChatPageModule,
+    ReviewPageModule,
     ProfileviewPageModule,
     TermPageModule,
     IonicSelectableModule

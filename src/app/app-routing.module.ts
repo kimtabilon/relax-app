@@ -21,7 +21,9 @@ const routes: Routes = [
   { path: 'payment', loadChildren: './payment/payment.module#PaymentPageModule' },
   { path: 'profileview', loadChildren: './profileview/profileview.module#ProfileviewPageModule' },
   { path: 'term', loadChildren: './term/term.module#TermPageModule' },
-  { path: 'resendemail', loadChildren: './resendemail/resendemail.module#ResendemailPageModule' }
+  { path: 'resendemail', loadChildren: './resendemail/resendemail.module#ResendemailPageModule' },
+  { path: 'review', loadChildren: './review/review.module#ReviewPageModule' },
+  { path: 'chat', loadChildren: './chat/chat.module#ChatPageModule' }
 ];
 @NgModule({
   imports: [

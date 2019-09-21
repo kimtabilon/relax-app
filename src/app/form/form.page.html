@@ -82,12 +82,12 @@
     <div>
       <ion-row padding class="form-header"><ion-col class="text-center">Schedule</ion-col></ion-row>
       <ion-row padding class="field-wrap">
-        <span class="field-text">Date of service</span>
+        <span class="field-text">Date of service <span class="required"> *required</span></span>
         <ion-label class="field-label"><ion-icon name="calendar" class="field-icon"></ion-icon></ion-label>
         <ion-datetime [(ngModel)]="schedule_date" min="{{current_date}}" max="{{next_year}}" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" placeholder="Date" class="field-date"></ion-datetime>
       </ion-row>
       <ion-row padding class="field-wrap">
-        <span class="field-text">Time</span>
+        <span class="field-text">Time <span class="required"> *required</span></span>
         <ion-label class="field-label"><ion-icon name="clock" class="field-icon"></ion-icon></ion-label>
         <ion-datetime [(ngModel)]="schedule_time" display-format="hh:mm a" picker-format="hh:mm a" placeholder="Time" class="field-date"></ion-datetime>
       </ion-row>

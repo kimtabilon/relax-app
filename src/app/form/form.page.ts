@@ -35,7 +35,7 @@ export class FormPage implements OnInit {
   customer_info:any = {
     name: '',
     address: '',
-    contact: ''
+    photo: ''
   }
 
   customer_city:any;
@@ -159,6 +159,7 @@ export class FormPage implements OnInit {
       this.customer_info = {
         name: customer_name,
         address: customer_address,
+        photo: this.photo,
         // contact: customer_contact
       }
 

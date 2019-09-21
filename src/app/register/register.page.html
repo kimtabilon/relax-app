@@ -234,7 +234,7 @@
 
 		    <ion-row class="field-warp with-margin-top">
 			        <ion-label><ion-icon name="mail" class="icon"></ion-icon></ion-label>
-			        <ion-input type="email" formControlName="email" placeholder="Email" class="field"></ion-input>
+			        <ion-input type="email" formControlName="email" placeholder="Email" class="field" ></ion-input>
 			  </ion-row>
 			  <div class="validation-errors">
 		      <ng-container *ngFor="let validation of validation_messages.email">
@@ -290,6 +290,7 @@
 	        <ion-col class="signup-col">
 	          <button class="btn btn-login" >{{signup_btn}}</button>
 	          <button class="btn btn-signup" routerLink="/login" routerDirection="root" >BACK</button>
+	          <!-- <div class="forget-pass" routerLink="/resendemail">Get Activation Link</div> -->
 	        </ion-col>
 	      </ion-row>
 	      

@@ -24,7 +24,11 @@
     </ion-row>
 
     <span class="service-label" (click)="tapMyProfile()" [ngClass]="page=='profile' ? 'active-tab' : ''">
-      <ion-icon name="today"></ion-icon> Account Information
+      <ion-icon name="today"></ion-icon> Account 
+    </span>
+
+    <span class="service-label" (click)="tapReviews()" [ngClass]="page=='reviews' ? 'active-tab' : ''">
+      <ion-icon name="mail"></ion-icon> Reviews
     </span>
     <!-- <span class="service-label" (click)="tapMyPhoto()" [ngClass]="page=='photo' ? 'active-tab' : ''">
       <ion-icon name="camera"></ion-icon>
@@ -241,6 +245,19 @@
 
     <button class="btn btn-login" (click)="tapUpdateAddr()" >UPDATE</button>
   </ion-list>
+
+  <ion-list *ngIf="page == 'reviews'">
+    <ion-row padding class="form-header"><ion-col class="text-center">RATINGS & REVIEWS</ion-col></ion-row>
+
+    <ion-item *ngFor="let review of reviews">
+      <ion-label text-wrap>
+        <ion-icon slot="icon-only" name="star" *ngFor="let item of [].constructor(review.star); let i = index"></ion-icon>
+        <ion-icon slot="icon-only" name="star-outline" *ngFor="let item of [].constructor(5 - review.star); let i = index"></ion-icon>
+        <h1>{{review.hero.profile.first_name}} {{review.hero.profile.last_name}}</h1>
+        {{review.comment}}
+      </ion-label>
+    </ion-item>
+  </ion-list> 
 
   <ion-list *ngIf="page == 'contact'">
     <div class="field-outer-wrap">

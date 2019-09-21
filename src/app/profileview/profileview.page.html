@@ -19,11 +19,8 @@
     </ion-card-header>
     <ion-card-content>
       Ratings: 
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
+      <ion-icon slot="icon-only" name="star" *ngFor="let item of [].constructor(user.rating); let i = index"></ion-icon>
+      <ion-icon slot="icon-only" name="star-outline" *ngFor="let item of [].constructor(5 - user.rating); let i = index"></ion-icon>
       <br>
       <ion-icon slot="icon-only" name="pin"></ion-icon> {{ address }} <br>
     </ion-card-content>
@@ -31,22 +28,21 @@
 
   <ion-item-divider>
     <ion-label>
-      REVIEWS
+      RATINGS & REVIEWS
     </ion-label>
   </ion-item-divider>
 
-  <ion-card>
+  <ion-card *ngFor="let review of user.reviews">
     <ion-card-header>
-      <ion-card-subtitle>August 28, 2019</ion-card-subtitle>
-      <ion-card-title>Client</ion-card-title>
+      <ion-card-subtitle>{{review.created_at}}</ion-card-subtitle>
+      <ion-card-title>{{ parse(review.customer_info).name }}</ion-card-title>
     </ion-card-header>
 
     <ion-card-content>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon>
-      <ion-icon slot="icon-only" name="star"></ion-icon><br>
-      Keep close to Nature's heart... and break clear away, once in awhile,
-      and climb a mountain or spend a week in the woods. Wash your spirit clean.
+      <ion-icon slot="icon-only" name="star" *ngFor="let item of [].constructor(review.star); let i = index"></ion-icon>
+      <ion-icon slot="icon-only" name="star-outline" *ngFor="let item of [].constructor(5 - review.star); let i = index"></ion-icon>
+      <br>
+      {{review.comment}}
     </ion-card-content>
     </ion-card>
 </ion-content>

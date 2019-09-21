@@ -10,6 +10,8 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HeroPage } from '../hero/hero.page';
+import { ChatPage } from '../chat/chat.page';
+import { ReviewPage } from '../review/review.page';
 
 @Component({
   selector: 'app-jobview',
@@ -259,28 +261,6 @@ export class JobviewPage implements OnInit {
   async showHeroes(heroes) {
     this.job.form.option.heroes = heroes;
 
-    // console.log(
-    //   { 
-    //     input: {
-    //       option_id : this.job.form.option.id,
-    //       form_id : this.job.form.id,
-    //       payper : this.job.amount,
-    //       schedule_date: this.job.schedule_date
-    //     },
-    //     option: this.job.form.option,
-    //     job: { 
-    //       app_key: this.env.APP_ID, 
-    //       customer_id: this.user.id, 
-    //       form_id: this.form.id, 
-    //       form_value: JSON.stringify(this.attributes), 
-    //       customer_info: JSON.stringify(this.customer_info), 
-    //       schedule_date: this.job.schedule_date, 
-    //       schedule_time: this.job.schedule_time, 
-    //       status: 'For Quotation'
-    //     }
-    //   }
-    // );
-
     const modal = await this.modalController.create({
       component: HeroPage,
       componentProps: { 
@@ -312,6 +292,40 @@ export class JobviewPage implements OnInit {
         let response:any = data;
         // this.account.settings.block_dates = response.data.block_dates;
         // this.saveSettings();
+    });
+
+    return await modal.present();
+  }
+
+  async chatHero() {
+    const modal = await this.modalController.create({
+      component: ChatPage,
+      componentProps: { 
+        job: this.job,
+        customer: this.profile
+      }
+    });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        let response:any = data;
+    });
+
+    return await modal.present();
+  }
+
+  async tapReview() {
+
+    const modal = await this.modalController.create({
+      component: ReviewPage,
+      componentProps: { 
+        job: this.job
+      }
+    });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        let response:any = data;
     });
 
     return await modal.present();

@@ -31,17 +31,6 @@ export class AppComponent {
   }
 
   logout() {
-    // this.authService.logout().subscribe(
-    //   data => {
-    //     this.alertService.presentToast(data['message']);        
-    //   },
-    //   error => {
-    //     console.log(error);
-    //   },
-    //   () => {
-    //     this.navCtrl.navigateRoot('/login');
-    //   }
-    // );
     this.authService.logout();
     this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login'); 

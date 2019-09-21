@@ -63,6 +63,7 @@ export class ProfilePage implements OnInit {
   customer:any = '';	
   images = [];
   categories:any;
+  reviews:any = [];
 
   constructor(
   	private menu: MenuController, 
@@ -161,10 +162,21 @@ export class ProfilePage implements OnInit {
     this.loading.dismiss();
   }
 
-  tapMyPhoto(){
+  tapReviews(){
     this.loading.present();
-    this.page='photo';
+    this.http.post(this.env.HERO_API + 'reviews/byClient',{ customer_id: this.user.id })
+      .subscribe(data => {
+        let response:any = data; 
+        this.reviews = response.data;
+      },error => { this.alertService.presentToast("Somethings went wrong");
+    },() => { });  
+
+    this.page='reviews';
     this.loading.dismiss();
+  }
+
+  parse(customer_info) {
+    return JSON.parse(customer_info);
   }
 
   tapMyAddress(){
@@ -181,8 +193,7 @@ export class ProfilePage implements OnInit {
 
   tapUpdate() {
     this.loading.present();
-    
-    this.http.post(this.env.API_URL + 'customer/modify',{ customer: this.user, address: this.address, contact: this.contact })
+    this.http.post(this.env.API_URL + 'customer/modify',{ customer: this.user, profile: this.profile, address: this.address, contact: this.contact })
       .subscribe(data => { 
         this.storage.set('customer', data);
       },

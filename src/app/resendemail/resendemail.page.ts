@@ -35,7 +35,6 @@ export class ResendemailPage implements OnInit {
 
     if(form.value.name != '' && form.value.email != '') 
     { 
-      console.log(form.value);	
       this.http.post(this.env.API_URL + 'customer/mail/resendactivation',{password: form.value.password, email: form.value.email})
 	    .subscribe(data => {
 	        let response:any = data;

@@ -35,32 +35,7 @@ export class LoginPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.http.post(this.env.HERO_API + 'app/validate',
-      {key: this.env.APP_ID}
-    ).subscribe(
-        data => {
-          let response:any = data;
-          let app:any = response.data;
-
-          this.appVersion.getVersionNumber().then(value => {
-            if(value != app.build) {
-              this.alertUpdate(app.build);
-            }
-            
-          }).catch(err => {
-            // alert(err);
-          });
-           
-          this.storage.set('app', response);
-
-        },
-        error => {
-          this.alertService.presentToast("Invalid App Key"); 
-        },
-        () => {
-          // this.navCtrl.navigateRoot('/tabs/service');
-        }
-      );
+    
   }
 
   async alertUpdate(version) {
@@ -124,6 +99,33 @@ export class LoginPage implements OnInit {
         this.navCtrl.navigateRoot('/tabs/home');
       }
     });
+
+    this.http.post(this.env.HERO_API + 'app/validate',
+      {key: this.env.APP_ID}
+    ).subscribe(
+        data => {
+          let response:any = data;
+          let app:any = response.data;
+
+          this.appVersion.getVersionNumber().then(value => {
+            if(value != app.build) {
+              this.alertUpdate(app.build);
+            }
+            
+          }).catch(err => {
+            // alert(err);
+          });
+           
+          this.storage.set('app', response);
+
+        },
+        error => {
+          this.alertService.presentToast("Invalid App Key"); 
+        },
+        () => {
+          // this.navCtrl.navigateRoot('/tabs/service');
+        }
+      );
   }
 
 }

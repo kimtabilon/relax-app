@@ -25,6 +25,7 @@ export class ProfileviewPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    console.log(this.user);
     this.img_link = this.env.IMAGE_URL + 'uploads/';
     this.photo = this.env.DEFAULT_IMG;
 
@@ -52,6 +53,10 @@ export class ProfileviewPage implements OnInit {
 
     this.address = customer_address;
     this.name = customer_name;
+  }
+
+  parse(customer_info) {
+    return JSON.parse(customer_info);
   }
 
   dismiss() {
