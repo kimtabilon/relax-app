@@ -58,9 +58,6 @@ export class LoginresetPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.http.post(this.env.HERO_API + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });
-    this.http.post(this.env.API_URL + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });  
-
     this.authService.getToken().then(() => {
       if(this.authService.isLoggedIn) {
         this.navCtrl.navigateRoot('/tabs/home');

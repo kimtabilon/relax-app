@@ -23,6 +23,7 @@ import { OrderModule } from 'ngx-order-pipe';
 
 import {HeroPageModule} from './hero/hero.module';
 import {ChatPageModule} from './chat/chat.module';
+import {NetworkPageModule} from './network/network.module';
 import {ReviewPageModule} from './review/review.module';
 import {ProfileviewPageModule} from './profileview/profileview.module';
 import {TermPageModule} from './term/term.module';
@@ -44,7 +45,8 @@ import { IonicSelectableModule } from 'ionic-selectable';
     ReviewPageModule,
     ProfileviewPageModule,
     TermPageModule,
-    IonicSelectableModule
+    IonicSelectableModule,
+    NetworkPageModule,
   ],
   providers: [
     StatusBar,

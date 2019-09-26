@@ -1,11 +1,10 @@
-
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content
-      pullingIcon="arrow-dropdown"
-      pullingText="Pull to refresh"
-      refreshingSpinner="circles"
-      refreshingText="Refreshing...">
+      pullingIcon="refresh"
+      pullingText="Release to refresh"
+      refreshingSpinner="crescent"
+      >
     </ion-refresher-content>
   </ion-refresher>
   <div class="body">
@@ -18,7 +17,7 @@
     <ion-row class="user">
       <ion-col col-12>
         <img class="img" src="{{photo}}"><br>
-        <span class="label">Welcome Back</span><br>
+        <span class="label">Welcome</span><br>
         <span class="name" *ngIf="user != undefined">{{ profile["first_name"]  }}</span><br>
       </ion-col>
     </ion-row>
@@ -128,27 +127,33 @@
       </ion-row>
 
       <ion-row padding class="field-wrap">
-        <span class="field-text">Barangay</span> 
-        <ion-label class="field-label"><ion-icon name="home" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="address.barangay" placeholder="Barangay"></ion-input>
+        <span class="field-text">Province</span>
+        <ion-label class="field-label"><ion-icon name="map" class="field-icon"></ion-icon></ion-label>
+        <ion-select placeholder="Province" [(ngModel)]="address.province" class="field" (ionChange)="tapProvince($event)">
+          <ion-select-option *ngFor="let prov of provinces" value="{{prov.provDesc}}">{{prov.provDesc}}</ion-select-option>
+        </ion-select>
       </ion-row>
 
       <ion-row padding class="field-wrap">
         <span class="field-text">City</span>
         <ion-label class="field-label"><ion-icon name="pin" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="address.city" placeholder="City"></ion-input>
+        <ion-select placeholder="City" [(ngModel)]="address.city" class="field" (ionChange)="tapCity($event)">
+          <ion-select-option *ngFor="let city of cities" value="{{city.citymunDesc}}">{{city.citymunDesc}}</ion-select-option>
+        </ion-select>
       </ion-row>
 
       <ion-row padding class="field-wrap">
-        <span class="field-text">Province</span>
-        <ion-label class="field-label"><ion-icon name="map" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="address.province" placeholder="Province"></ion-input>
+        <span class="field-text">Barangay</span> 
+        <ion-label class="field-label"><ion-icon name="home" class="field-icon"></ion-icon></ion-label>
+        <ion-select placeholder="Barangay" [(ngModel)]="address.barangay" class="field" (onChange)="tapBarangay($event)">
+          <ion-select-option *ngFor="let brgy of barangays" value="{{brgy.brgyDesc}}">{{brgy.brgyDesc}}</ion-select-option>
+        </ion-select>
       </ion-row>
 
       <ion-row padding class="field-wrap">
         <span class="field-text">Country</span>
         <ion-label class="field-label"><ion-icon name="planet" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="address.country" placeholder="Country"></ion-input>
+        <ion-input class="field" [(ngModel)]="address.country" placeholder="Country" disabled></ion-input>
       </ion-row>
 
       <ion-row padding class="field-wrap">
@@ -161,11 +166,6 @@
 
     <div class="field-outer-wrap">
       <ion-row padding class="form-header"><ion-col class="text-center">PHONE NUMBER</ion-col></ion-row>
-      <!-- <ion-row padding class="field-wrap">
-        <span class="field-text">Dial Code</span>
-        <ion-label class="field-label"><ion-icon name="call" class="field-icon"></ion-icon></ion-label>
-        <ion-input class="field" [(ngModel)]="contact.dial_code" placeholder="Dial Code"></ion-input>
-      </ion-row> -->
 
       <ion-row padding class="field-wrap">
         <span class="field-text">Number</span>
@@ -175,7 +175,7 @@
       
     </div>
 
-    <button class="btn btn-login" (click)="tapUpdate()" >SAVE</button>
+    <button class="btn btn-login" (click)="tapUpdate()" >SAVE CHANGES</button>
 
   </ion-list>
  

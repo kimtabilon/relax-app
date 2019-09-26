@@ -11,6 +11,12 @@
 
 <ion-content fullscreen>
   <ion-list lines="full">
+    <ion-list-header>
+      <ion-select placeholder="Order by" (ionChange)="tapFilter($event)">
+        <ion-select-option value="amount">Order by Amount</ion-select-option>
+        <ion-select-option value="ratings">Order by Ratings</ion-select-option>
+      </ion-select>
+    </ion-list-header>
     <ion-item *ngFor="let hero of heroes">
         <ion-avatar slot="start" (click)="view(hero);">
           <img *ngIf="hero.profile.photo!=null" src="{{img_link+hero.profile.photo}}">

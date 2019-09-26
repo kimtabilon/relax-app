@@ -5,9 +5,6 @@ import { tap } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
 import { EnvService } from './env.service';
 import { AlertService } from './alert.service';
-import { User } from '../models/user';
-import { AppVersion } from '@ionic-native/app-version/ngx';
-import { Market } from '@ionic-native/market/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -24,72 +21,8 @@ export class AuthService {
     private env: EnvService,
     private navCtrl: NavController,
     private alertService: AlertService,
-    private appVersion: AppVersion,
-    private market: Market,
     public alertController: AlertController,
   ) { }
-
-  async validateApp(email, password) {
-
-    this.http.post(this.env.HERO_API + 'app/validate',
-      {key: this.env.APP_ID}
-    ).subscribe(
-        data => {
-          let response:any = data;
-          let app:any = response.data;
-
-          this.appVersion.getVersionNumber().then(value => {
-            if(value != app.build) {
-              // this.alertService.presentToast("New update available."); 
-
-              this.http.post(this.env.HERO_API + 'customer/login',{email: email, password: password})
-              .subscribe(data => {
-                  this.storage.set('customer', data);
-              },error => { console.log(error); });
-
-              this.alertUpdate(app.build);
-            }
-            
-          }).catch(err => {
-            // alert(err);
-          });
-           
-          this.storage.set('app', response);
-
-        },
-        error => {
-          this.alertService.presentToast("Invalid App Key"); 
-          this.logout();
-          this.navCtrl.navigateRoot('/login');
-        },
-        () => {
-          // this.navCtrl.navigateRoot('/tabs/service');
-        }
-      );
-  }
-
-  async alertUpdate(version) {
-    const alert = await this.alertController.create({
-      header: 'New Update Available',
-      message: 'Version '+version,
-      buttons: [
-        {
-          text: 'Update',
-          handler: () => {
-
-            this.appVersion.getPackageName().then(value => {
-              this.market.open(value);
-            }).catch(err => {
-              // alert(err);
-            });
-
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
 
   login(email: String, password: String) {
     return this.http.post(this.env.API_URL + 'customer/login',
@@ -169,18 +102,6 @@ export class AuthService {
     this.isLoggedIn = false;
     delete this.token;
     return '';
-  }
-
-  user() {
-    const headers = new HttpHeaders({
-      'Authorization': this.token["token_type"]+" "+this.token["access_token"]
-    });
-    return this.http.get<User>(this.env.API_URL + 'customers/1', { headers: headers })
-    .pipe(
-      tap(user => {
-        return user;
-      })
-    )
   }
 
   getToken() {

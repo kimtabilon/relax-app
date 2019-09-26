@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoadingService } from 'src/app/services/loading.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProfileviewPage } from '../profileview/profileview.page';
+import { OrderPipe } from 'ngx-order-pipe';
 
 @Component({
   selector: 'app-hero',
@@ -31,6 +32,7 @@ export class HeroPage implements OnInit {
     public modalController: ModalController,
     public alertController: AlertController,
     public router : Router,
+    private orderPipe: OrderPipe,
   ) {
   }
 
@@ -39,8 +41,8 @@ export class HeroPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // console.log(this.option);
     this.heroes = this.option.heroes;
+    console.log(this.heroes);
     this.img_link = this.env.IMAGE_URL + 'uploads/';
     this.default_photo = this.env.DEFAULT_IMG;
   }
@@ -152,5 +154,23 @@ export class HeroPage implements OnInit {
       input: this.input
     });
   }
+
+  tapFilter(event){ 
+    let filter:any = event.detail.value;
+    // this.heroes.filter(item => item.citymunCode === city.citymunCode);
+    switch (filter) {
+      case "amount":
+        this.heroes = this.orderPipe.transform(this.heroes, 'pivot.pay_per');
+        break;
+
+    case "ratings":
+        this.heroes = this.orderPipe.transform(this.heroes, 'rating');
+        break;    
+      
+      default:
+        // code...
+        break;
+    }
+  };
 
 }

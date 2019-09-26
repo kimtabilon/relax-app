@@ -68,13 +68,11 @@ export class InboxPage implements OnInit {
     this.storage.get('customer').then((val) => {
       this.user = val.data;
       this.profile = val.data.profile;    
-      console.log(this.user.id);
       if(this.profile.photo!==null) {
         this.photo = this.env.IMAGE_URL + 'uploads/' + this.profile.photo;
       } else {
         this.photo = this.env.DEFAULT_IMG;
       }
-      this.authService.validateApp(this.user.email,this.user.password);
       
       /*Get My Jobs*/
       this.http.post(this.env.HERO_API + 'inboxes/byUser',{app_key: this.env.APP_ID, user_id: this.user.id})
@@ -164,7 +162,6 @@ export class InboxPage implements OnInit {
   logout() {
     this.loading.present();
     this.authService.logout();
-    this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login');  
     this.loading.dismiss();
   }

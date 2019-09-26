@@ -78,8 +78,6 @@ export class JobPage implements OnInit {
         this.photo = this.env.DEFAULT_IMG;
       }  
 
-      this.authService.validateApp(this.user.email,this.user.password);
-
       /*Get My Jobs*/
       this.http.post(this.env.HERO_API + 'customer/jobs',{customer_id: this.user.id, app_key: this.env.APP_ID})
         .subscribe(data => {
@@ -150,7 +148,6 @@ export class JobPage implements OnInit {
   logout() {
     this.loading.present();
     this.authService.logout();
-    this.alertService.presentToast('Successfully logout');  
     this.navCtrl.navigateRoot('/login');  
     this.loading.dismiss();
   }

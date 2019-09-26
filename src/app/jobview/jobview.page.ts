@@ -119,7 +119,11 @@ export class JobviewPage implements OnInit {
               this.heroExist = false;
             }
 
-            if(this.job.status == 'Cancelled' || this.job.status == 'Completed') {
+            if(this.job.status == 'Cancelled' || 
+               this.job.status == 'Completed' || 
+               this.job.status == 'Waiting for Payment' ||
+               this.job.status == 'Paid'
+            ) {
               this.enableCancel = false;
             } else {
               this.enableCancel = true;
@@ -153,7 +157,14 @@ export class JobviewPage implements OnInit {
               this.enableNoshow = false;
             }
 
-            if(this.job.status == 'No Show : Client' || this.job.status == 'No Show : Hero' || this.job.status == 'Cancelled' || this.job.status == 'Denied' || this.job.status == 'Completed') {
+            if(this.job.status == 'No Show : Client' || 
+               this.job.status == 'No Show : Hero' || 
+               this.job.status == 'Cancelled' || 
+               this.job.status == 'Denied' || 
+               this.job.status == 'Completed' ||
+               this.job.status == 'Waiting for Payment' ||
+               this.job.status == 'Paid'
+            ) {
               this.enableNoshow = false;
             }
 
@@ -329,6 +340,37 @@ export class JobviewPage implements OnInit {
     });
 
     return await modal.present();
+  }
+
+  async tapPayWithCash() {
+
+    let alert = await this.alertCtrl.create({
+      header: 'Pay with Cash',
+      message: 'By tapping continue, provider must recieved the amount in cash',
+      buttons: [
+        {
+          text: 'Back',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            
+          }
+        }, {
+          text: 'Continue',
+          handler: () => {
+            this.loading.present();
+            this.http.post(this.env.HERO_API + 'jobs/payCash',{id: this.job.id})
+              .subscribe(data => {
+              },error => { 
+                this.alertService.presentToast("Server no response");
+                console.log(error);
+              },() => { this.navCtrl.navigateRoot('/tabs/job'); }
+            ); 
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   logout() {

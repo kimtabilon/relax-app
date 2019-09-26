@@ -5,14 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ProfilePage } from './profile.page';
-
-import { IonicSelectableModule } from 'ionic-selectable';
+import { AdsPage } from './ads.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ProfilePage
+    component: AdsPage
   }
 ];
 
@@ -21,9 +19,8 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes),
-    IonicSelectableModule,
+    RouterModule.forChild(routes)
   ],
-  declarations: [ProfilePage]
+  declarations: [AdsPage]
 })
-export class ProfilePageModule {}
+export class AdsPageModule {}

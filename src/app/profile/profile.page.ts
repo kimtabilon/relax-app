@@ -16,6 +16,7 @@ import { File, FileEntry } from '@ionic-native/File/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { finalize } from 'rxjs/operators';
+import { OrderPipe } from 'ngx-order-pipe';
 
 const STORAGE_KEY = 'my_images';
 
@@ -65,6 +66,10 @@ export class ProfilePage implements OnInit {
   categories:any;
   reviews:any = [];
 
+  provinces:any = [];
+  cities:any = [];
+  barangays:any = [];
+
   constructor(
   	private menu: MenuController, 
   	private authService: AuthService,
@@ -85,7 +90,8 @@ export class ProfilePage implements OnInit {
     private platform: Platform, 
     private loadingController: LoadingController,
     private ref: ChangeDetectorRef, 
-    private filePath: FilePath
+    private filePath: FilePath,
+    private orderPipe: OrderPipe,
   ) { 
   	this.menu.enable(true);	
   }
@@ -94,7 +100,18 @@ export class ProfilePage implements OnInit {
   }
 
   doRefresh(event) {
-    this.ionViewWillEnter();
+    this.http
+    .post(this.env.HERO_API + 'customer/login',{email: this.user.email, password:  this.user.password})
+    .subscribe(data => {
+        let response:any = data;
+        this.storage.set('customer', response);
+        this.user = response.data;
+        this.ionViewWillEnter();
+    },error => { 
+      this.logout();
+      console.log(error); 
+    });
+
     setTimeout(() => {
       event.target.complete();
     }, 2000);
@@ -108,18 +125,6 @@ export class ProfilePage implements OnInit {
       this.customer = val;
       this.user = val.data;
       this.profile = val.data.profile;
-
-      this.http.post(this.env.HERO_API + 'customer/login',{email: this.user.email, password:  this.user.password})
-      .subscribe(data => {
-          let response:any = data;
-          this.storage.set('customer', response);
-          this.user = response.data;
-      },error => { 
-        this.logout();
-        console.log(error); 
-      });
-
-      this.authService.validateApp(this.user.email,this.user.password);
 
       if(this.profile.addresses.length) {
         this.address = this.profile.addresses[0];
@@ -153,8 +158,67 @@ export class ProfilePage implements OnInit {
         this.photo = this.env.DEFAULT_IMG;
       }
     });
+
+    fetch('./assets/json/refprovince.json').then(res => res.json())
+    .then(json => {
+      // console.log(json.RECORDS);
+      let records:any = json.RECORDS
+      let province:any = records.filter(item => item.provDesc === this.address.province)[0];
+      this.provinces = this.orderPipe.transform(records, 'provDesc'); 
+      
+      fetch('./assets/json/refcitymun.json').then(res => res.json())
+      .then(json => {
+        // console.log(json.RECORDS);
+        let records:any = json.RECORDS
+        let city:any = records.filter(item => item.citymunDesc === this.address.city)[0];
+        this.cities = records.filter(item => item.provCode === province.provCode);
+        this.cities = this.orderPipe.transform(this.cities, 'citymunDesc');
+
+        fetch('./assets/json/refbrgy.json').then(res => res.json())
+        .then(json => {
+          let records:any = json.RECORDS
+          this.barangays = records.filter(item => item.citymunCode === city.citymunCode);
+          this.barangays = this.orderPipe.transform(this.barangays, 'brgyDesc');
+        });
+      });
+    });
     this.loading.dismiss();
   }
+
+  tapProvince(event){ 
+    let prov:any = event.detail.value;
+    fetch('./assets/json/refprovince.json').then(res => res.json())
+    .then(json => {
+      let records:any = json.RECORDS
+      let province:any = records.filter(item => item.provDesc === prov)[0];
+      fetch('./assets/json/refcitymun.json').then(res => res.json())
+      .then(json => {
+        let records:any = json.RECORDS
+        this.cities = records.filter(item => item.provCode === province.provCode);
+        this.cities = this.orderPipe.transform(this.cities, 'citymunDesc');
+      });
+    });
+  };
+
+  tapCity(event){ 
+    let ci:any = event.detail.value;
+    fetch('./assets/json/refcitymun.json').then(res => res.json())
+    .then(json => {
+      let records:any = json.RECORDS
+      let city:any = records.filter(item => item.citymunDesc === ci)[0];
+
+      fetch('./assets/json/refbrgy.json').then(res => res.json())
+      .then(json => {
+        let records:any = json.RECORDS
+        this.barangays = records.filter(item => item.citymunCode === city.citymunCode);
+        this.barangays = this.orderPipe.transform(this.barangays, 'brgyDesc');
+      });
+    });
+  };
+
+  tapBarangay(event){ 
+    
+  };
 
   tapMyProfile(){
     this.loading.present();
@@ -168,7 +232,7 @@ export class ProfilePage implements OnInit {
       .subscribe(data => {
         let response:any = data; 
         this.reviews = response.data;
-      },error => { this.alertService.presentToast("Somethings went wrong");
+      },error => { this.alertService.presentToast("Somethings went wrong.");
     },() => { });  
 
     this.page='reviews';

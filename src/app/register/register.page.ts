@@ -57,38 +57,6 @@ export class RegisterPage implements OnInit {
   ) {
   }
 
-  tapProvince(event){ 
-    // console.log(event.detail.value);
-    let province:any = event.value;
-    fetch('./assets/json/refcitymun.json').then(res => res.json())
-    .then(json => {
-      // console.log(json.RECORDS);
-      let records:any = json.RECORDS
-      this.cities = records.filter(item => item.provCode === province.provCode);
-      this.cities = this.orderPipe.transform(this.cities, 'provDesc');
-
-      // console.log(this.cities);
-    });
-  };
-
-  tapCity(event){ 
-    // console.log(event.detail.value);
-    let city:any = event.value;
-    fetch('./assets/json/refbrgy.json').then(res => res.json())
-    .then(json => {
-      // console.log(json.RECORDS);
-      let records:any = json.RECORDS
-      this.barangays = records.filter(item => item.citymunCode === city.citymunCode);
-      this.barangays = this.orderPipe.transform(this.barangays, 'provDesc');
-
-      // console.log(this.barangays);
-    });
-  };
-
-  tapBarangay(event){ 
-    // console.log(event.detail.value);
-  };
-
   ngOnInit() {
     fetch('./assets/json/refprovince.json').then(res => res.json())
     .then(json => {
@@ -240,6 +208,29 @@ export class RegisterPage implements OnInit {
     ],
   };
 
+  tapProvince(event){ 
+    let province:any = event.value;
+    fetch('./assets/json/refcitymun.json').then(res => res.json())
+    .then(json => {
+      let records:any = json.RECORDS
+      this.cities = records.filter(item => item.provCode === province.provCode);
+      this.cities = this.orderPipe.transform(this.cities, 'citymunDesc');
+    });
+  };
+
+  tapCity(event){ 
+    let city:any = event.value;
+    fetch('./assets/json/refbrgy.json').then(res => res.json())
+    .then(json => {
+      let records:any = json.RECORDS
+      this.barangays = records.filter(item => item.citymunCode === city.citymunCode);
+      this.barangays = this.orderPipe.transform(this.barangays, 'brgyDesc');
+    });
+  };
+
+  tapBarangay(event){ 
+  };
+
   async notifyEmailExist() {
     let alert = await this.alertCtrl.create({
       header: 'Email Issue',
@@ -368,8 +359,6 @@ export class RegisterPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.http.post(this.env.HERO_API + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });
-    this.http.post(this.env.API_URL + 'check/server',{}).subscribe(data => { },error => { this.alertService.presentToast("Server not found. Check your internet connection."); });  
 
     let eightenyearsAgo = function(sp){
       let today:any = new Date();
