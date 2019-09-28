@@ -1,5 +1,5 @@
 {
-  "name": "hero-app",
+  "name": "relax-app",
   "version": "0.0.24",
   "author": "MJSITECHSOLUTIONS",
   "homepage": "https://ionicframework.com/",
@@ -93,11 +93,15 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-device": {},
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-ionic-webview": {},
+      "cordova-plugin-ionic-webview": {
+        "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
+      },
       "cordova-plugin-ionic-keyboard": {},
       "cordova-plugin-nativestorage": {},
       "cordova-sqlite-storage": {},
-      "cordova-plugin-camera": {},
+      "cordova-plugin-camera": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      },
       "cordova-plugin-file": {},
       "cordova-plugin-filepath": {},
       "cordova-plugin-app-version": {},
