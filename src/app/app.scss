@@ -35,7 +35,7 @@
 
 /* COMMON STYLE */
 .body {
-  background:linear-gradient(0deg,rgba(199,44,60,.8),rgba(199,44,60,.9)),url('../assets/img/bg-img-sm.png');
+  background:linear-gradient(0deg,rgba(199,44,60,.8),rgba(199,44,60,.9)),url('../assets/img/bg-img-sm.png') !important;
   background-size:cover;
   width: 100%;
 }
